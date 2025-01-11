@@ -37,8 +37,14 @@ class ControleurProfesseur {
     }
 
     private function dashboard() {
+        // Obtenir les informations du professeur
+        $professeur_info = $this->modele->get_professeur($_SESSION['utilisateur_id']);
+        
+        // Obtenir les statistiques
+        $statistiques = $this->modele->get_statistiques();
+
         $this->vue->menu();
-        $this->vue->dashboard();
+        $this->vue->dashboard($professeur_info, $statistiques);
     }
 
     private function form_creer_livrable() {
@@ -64,6 +70,7 @@ class ControleurProfesseur {
     private function consulter_rendus() {
         $livrables = $this->modele->get_livrables();
         $rendus = $this->modele->get_rendus();
+
         $this->vue->menu();
         $this->vue->consulter_rendus($livrables, $rendus);
     }
