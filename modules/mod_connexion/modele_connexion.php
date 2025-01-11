@@ -1,13 +1,19 @@
-<?php 
+<?php
+
 class ModeleConnexion extends Connexion {
 
     public function get_utilisateur($login) {
-        // Préparer la requête pour récupérer l'utilisateur avec son rôle
-        $req = self::$bdd->prepare("SELECT * FROM utilisateur WHERE login = ?");
+        $req = self::$bdd->prepare("SELECT * FROM Utilisateur WHERE login = ?");
         $req->execute([$login]);
         return $req->fetch();
     }
+
+    public function hash_passwords() {
+        $users = self::$bdd->query("SELECT id_utilisateur, mdp FROM Utilisateur")->fetchAll();
+        foreach ($users as $user) {
+            $hashed = password_hash($user['mdp'], PASSWORD_DEFAULT);
+            $stmt = self::$bdd->prepare("UPDATE Utilisateur SET mdp = ? WHERE id_utilisateur = ?");
+            $stmt->execute([$hashed, $user['id_utilisateur']]);
+        }
+    }
 }
-
-
-// On a enlevé "ajout_utilisateur" car on ne permet pas l'inscription c'est nous on vas créer les identifiants et les donner comme l'ent...
