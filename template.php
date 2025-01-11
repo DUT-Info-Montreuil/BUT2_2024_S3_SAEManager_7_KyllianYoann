@@ -7,16 +7,26 @@
     <link rel="stylesheet" href="public/assets/styles.css">
 </head>
 <body>
-    <header>
-        <?= $menu_html ?? "<p>Menu non disponible.</p>"; ?>
-    </header>
+    <?php 
+    // Condition pour afficher ou masquer le header
+    if (!(!isset($_GET['module']) || $_GET['module'] === 'connexion')): ?>
+        <header>
+            <?php if (isset($_SESSION['utilisateur_id'])): ?>
+                <a href="index.php?module=connexion&action=deconnexion">Déconnexion</a>
+            <?php endif; ?>
+        </header>
+    <?php endif; ?>
 
     <main>
         <?= $module_html ?? "<p>Aucun contenu disponible.</p>"; ?>
     </main>
 
-    <footer>
-        <?= $footer_html ?? "<p>Footer non disponible.</p>"; ?>
-    </footer>
+    <?php 
+    // Condition pour afficher ou masquer le footer
+    if (!(!isset($_GET['module']) || $_GET['module'] === 'connexion')): ?>
+        <footer>
+            <p>&copy; <?= date('Y'); ?> SAE Manager. Tous droits réservés à Kyllian et Yoann.</p>
+        </footer>
+    <?php endif; ?>
 </body>
 </html>
