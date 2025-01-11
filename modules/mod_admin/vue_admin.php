@@ -60,7 +60,7 @@ class VueAdmin extends VueGenerique {
                         <td><?= htmlspecialchars($utilisateur["id_utilisateur"]); ?></td>
                         <td><?= htmlspecialchars($utilisateur["nom"]); ?></td>
                         <td><?= htmlspecialchars($utilisateur["prenom"]); ?></td>
-                        <td><?= htmlspecialchars($utilisateur["email"]); ?></td>
+                        <td><?= htmlspecialchars($utilisateur["login"]); ?></td>
                         <td><?= htmlspecialchars($utilisateur["role"]); ?></td>
                         <td>
                             <a href="index.php?module=admin&action=supprimer_utilisateur&id=<?= $utilisateur["id_utilisateur"]; ?>">Supprimer</a>
