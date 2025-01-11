@@ -7,10 +7,10 @@ class Connexion {
      */
     public static function init_connexion() {
         // Informations de connexion ( Vérifier nos identifiants qu'on met)
-        $host = "database-etudiants.iut.univ-paris8.fr";
-        $dbname = "dutinfopw201679";
-        $user = "dutinfopw201679";
-        $password = "vevazaha";
+        $host = "sql200.infinityfree.com";
+        $dbname = "if0_38080369_saemanager7";
+        $user = "if0_38080369";
+        $password = "Anosun77";
 
         try {
             // Création du Data Source Name (DSN)
