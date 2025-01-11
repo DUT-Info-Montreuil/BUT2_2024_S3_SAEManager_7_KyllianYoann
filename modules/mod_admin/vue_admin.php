@@ -7,77 +7,323 @@ class VueAdmin extends VueGenerique {
 
     public function menu() {
         ?>
-        <ul>
-            <li><a href="index.php?module=admin&action=dashboard">Dashboard</a></li>
-            <li><a href="index.php?module=admin&action=form_creer_utilisateur">Créer un utilisateur</a></li>
-            <li><a href="index.php?module=admin&action=liste_utilisateurs">Liste des utilisateurs</a></li>
-        </ul>
+        <style>
+            .menu {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                background-color: #2c3e50;
+                padding: 15px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .menu a {
+                color: white;
+                text-decoration: none;
+                font-weight: bold;
+                font-size: 16px;
+                padding: 10px 15px;
+                border-radius: 5px;
+                transition: background 0.3s ease;
+            }
+
+            .menu a:hover {
+                background-color: #4cd137;
+            }
+
+            .menu a.active {
+                background-color: #4cd137;
+            }
+        </style>
+        <nav class="menu">
+            <a href="index.php?module=admin&action=dashboard" class="active">Dashboard</a>
+            <a href="index.php?module=admin&action=liste_utilisateurs">Liste des Utilisateurs</a>
+            <a href="index.php?module=admin&action=form_creer_utilisateur">Créer un Utilisateur</a>
+        </nav>
         <?php
     }
 
-    public function dashboard() {
+    public function dashboard($statistiques) {
         ?>
-        <h1>Dashboard Administrateur</h1>
-        <p>Bienvenue dans le panneau d'administration.</p>
-        <?php
-    }
+        <style>
+            .dashboard-container {
+                margin: 20px auto;
+                max-width: 1200px;
+                padding: 30px;
+                background-color: #f9f9f9;
+                border-radius: 15px;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            }
 
-    public function form_creer_utilisateur() {
-        ?>
-        <h1>Créer un utilisateur</h1>
-        <form action="index.php?module=admin&action=creer_utilisateur" method="POST">
-            Nom : <input type="text" name="nom" required><br>
-            Prénom : <input type="text" name="prenom" required><br>
-            Email : <input type="email" name="email" required><br>
-            Mot de passe : <input type="password" name="mot_de_passe" required><br>
-            Rôle :
-            <select name="role" required>
-                <option value="etudiant">Étudiant</option>
-                <option value="professeur">Professeur</option>
-            </select><br>
-            <input type="submit" value="Créer">
-        </form>
+            .dashboard-header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .dashboard-header h1 {
+                font-size: 32px;
+                color: #2c3e50;
+                margin-bottom: 10px;
+            }
+
+            .dashboard-header p {
+                font-size: 18px;
+                color: #555;
+            }
+
+            .stats-container {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+            }
+
+            .stat-box {
+                flex: 1;
+                background-color: #ffffff;
+                padding: 20px;
+                margin: 0 10px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+
+            .stat-box h3 {
+                margin: 10px 0;
+                font-size: 24px;
+                color: #2c3e50;
+            }
+
+            .stat-box p {
+                margin: 0;
+                font-size: 16px;
+                color: #777;
+            }
+
+            .stat-icon {
+                font-size: 40px;
+                margin-bottom: 10px;
+            }
+
+            .stat-icon.admin {
+                color: #f39c12;
+            }
+
+            .stat-icon.professeur {
+                color: #3498db;
+            }
+
+            .stat-icon.etudiant {
+                color: #2ecc71;
+            }
+        </style>
+
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Dashboard Administrateur</h1>
+                <p>Bienvenue dans votre espace de gestion.</p>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-icon admin">👨‍💼</div>
+                    <h3><?= htmlspecialchars($statistiques['admins'] ?? 0); ?></h3>
+                    <p>Admins</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon professeur">📚</div>
+                    <h3><?= htmlspecialchars($statistiques['professeurs'] ?? 0); ?></h3>
+                    <p>Professeurs</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon etudiant">🎓</div>
+                    <h3><?= htmlspecialchars($statistiques['etudiants'] ?? 0); ?></h3>
+                    <p>Étudiants</p>
+                </div>
+            </div>
+        </div>
         <?php
     }
 
     public function liste_utilisateurs($utilisateurs) {
         ?>
-        <h1>Liste des utilisateurs</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($utilisateurs as $utilisateur) { ?>
+        <style>
+            .table-container {
+                margin: 20px auto;
+                max-width: 1000px;
+                padding: 30px;
+                background: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .table-container h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+                color: #2c3e50;
+                border-bottom: 2px solid #f1f1f1;
+                padding-bottom: 5px;
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .table th,
+            .table td {
+                padding: 15px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            .table th {
+                background-color: #4cd137;
+                color: white;
+            }
+
+            .table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            .table tr:hover {
+                background-color: #f1f1f1;
+            }
+
+            .action-btn {
+                color: #3498db;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            .action-btn:hover {
+                color: #2980b9;
+            }
+        </style>
+        <div class="table-container">
+            <h2>Liste des Utilisateurs</h2>
+            <table class="table">
+                <thead>
                     <tr>
-                        <td><?= htmlspecialchars($utilisateur["id_utilisateur"]); ?></td>
-                        <td><?= htmlspecialchars($utilisateur["nom"]); ?></td>
-                        <td><?= htmlspecialchars($utilisateur["prenom"]); ?></td>
-                        <td><?= htmlspecialchars($utilisateur["login"]); ?></td>
-                        <td><?= htmlspecialchars($utilisateur["role"]); ?></td>
-                        <td>
-                            <a href="index.php?module=admin&action=supprimer_utilisateur&id=<?= $utilisateur["id_utilisateur"]; ?>">Supprimer</a>
-                        </td>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Login</th>
+                        <th>Rôle</th>
+                        <th>Actions</th>
                     </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($utilisateurs as $utilisateur): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($utilisateur['nom']); ?></td>
+                            <td><?= htmlspecialchars($utilisateur['prenom']); ?></td>
+                            <td><?= htmlspecialchars($utilisateur['login']); ?></td>
+                            <td><?= htmlspecialchars($utilisateur['role']); ?></td>
+                            <td>
+                                <a href="index.php?module=admin&action=form_modifier_utilisateur&id=<?= $utilisateur['id_utilisateur']; ?>" class="action-btn">Modifier</a>
+                                <a href="index.php?module=admin&action=supprimer_utilisateur&id=<?= $utilisateur['id_utilisateur']; ?>" class="action-btn">Supprimer</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
         <?php
     }
 
-    public function confirm_creer_utilisateur() {
-        echo "<p>Utilisateur créé avec succès.</p>";
+    public function form_creer_utilisateur() {
+        ?>
+        <style>
+            .form-container {
+                margin: 20px auto;
+                max-width: 600px;
+                padding: 30px;
+                background: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .form-container h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+                text-align: center;
+                color: #2c3e50;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 14px;
+                color: #555;
+            }
+
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+            .form-submit {
+                display: block;
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                color: white;
+                background-color: #4cd137;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .form-submit:hover {
+                background-color: #44bd32;
+            }
+        </style>
+        <div class="form-container">
+            <h1>Créer un Utilisateur</h1>
+            <form action="index.php?module=admin&action=creer_utilisateur" method="POST">
+                <div class="form-group">
+                    <label for="nom">Nom :</label>
+                    <input type="text" id="nom" name="nom" placeholder="Nom de l'utilisateur" required>
+                </div>
+                <div class="form-group">
+                    <label for="prenom">Prénom :</label>
+                    <input type="text" id="prenom" name="prenom" placeholder="Prénom de l'utilisateur" required>
+                </div>
+                <div class="form-group">
+                    <label for="login">Login :</label>
+                    <input type="text" id="login" name="login" placeholder="Identifiant de connexion" required>
+                </div>
+                <div class="form-group">
+                    <label for="mdp">Mot de Passe :</label>
+                    <input type="password" id="mdp" name="mdp" placeholder="Mot de passe" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Rôle :</label>
+                    <select id="role" name="role" required>
+                        <option value="etudiant">Étudiant</option>
+                        <option value="professeur">Professeur</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="form-submit">Créer l'Utilisateur</button>
+            </form>
+        </div>
+        <?php
     }
 
     public function confirm_supprimer_utilisateur() {
-        echo "<p>Utilisateur supprimé avec succès.</p>";
+        echo "<p>L'utilisateur a été supprimé avec succès.</p>";
+    }
+
+    public function confirm_creer_utilisateur() {
+        echo "<p>L'utilisateur a été créé avec succès.</p>";
     }
 
     public function erreurBD() {
