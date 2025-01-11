@@ -37,8 +37,9 @@ class ControleurAdmin {
     }
 
     private function dashboard() {
+        $statistiques = $this->modele->get_statistiques();
         $this->vue->menu();
-        $this->vue->dashboard();
+        $this->vue->dashboard($statistiques);
     }
 
     private function form_creer_utilisateur() {
@@ -49,11 +50,11 @@ class ControleurAdmin {
     private function creer_utilisateur() {
         $nom = isset($_POST["nom"]) ? $_POST["nom"] : die("Paramètre manquant");
         $prenom = isset($_POST["prenom"]) ? $_POST["prenom"] : die("Paramètre manquant");
-        $email = isset($_POST["email"]) ? $_POST["email"] : die("Paramètre manquant");
-        $mot_de_passe = isset($_POST["mot_de_passe"]) ? $_POST["mot_de_passe"] : die("Paramètre manquant");
+        $login = isset($_POST["login"]) ? $_POST["login"] : die("Paramètre manquant");
+        $mdp = isset($_POST["mdp"]) ? $_POST["mdp"] : die("Paramètre manquant");
         $role = isset($_POST["role"]) ? $_POST["role"] : die("Paramètre manquant");
 
-        if ($this->modele->creer_utilisateur($nom, $prenom, $email, $mot_de_passe, $role)) {
+        if ($this->modele->creer_utilisateur($nom, $prenom, $login, $mdp, $role)) {
             $this->vue->menu();
             $this->vue->confirm_creer_utilisateur();
         } else {
