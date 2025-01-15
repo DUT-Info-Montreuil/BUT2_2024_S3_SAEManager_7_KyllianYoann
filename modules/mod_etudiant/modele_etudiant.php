@@ -69,13 +69,14 @@ class ModeleEtudiant extends Connexion {
     }
 
     public function get_evaluations($id_livrable) {
-    $req = "SELECT * FROM Evaluation WHERE rendu_id IN (
-                SELECT id_rendu FROM Rendu WHERE livrable_id = :id_livrable
-            )";
+    $req = "SELECT e.id_evaluation, e.note, e.type, e.rendu_id 
+            FROM Evaluation e 
+            JOIN Rendu r ON e.rendu_id = r.id_rendu 
+            WHERE r.livrable_id = :id_livrable";
     $stmt = self::$bdd->prepare($req);
     $stmt->execute(['id_livrable' => $id_livrable]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    }
 
     public function get_commentaires($id_evaluation) {
     $req = "SELECT * FROM Commentaire WHERE evaluation_id = :id_evaluation";
@@ -99,6 +100,16 @@ class ModeleEtudiant extends Connexion {
     $req->bindParam(':id_livrable', $id_livrable, PDO::PARAM_INT);
     $req->execute();
     return $req->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function get_rendu_by_livrable($id_livrable, $utilisateur_id) {
+    $req = "SELECT * FROM Rendu WHERE livrable_id = :id_livrable AND utilisateur_id = :utilisateur_id";
+    $stmt = self::$bdd->prepare($req);
+    $stmt->execute([
+        'id_livrable' => $id_livrable,
+        'utilisateur_id' => $utilisateur_id,
+    ]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
 
