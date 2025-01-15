@@ -138,6 +138,8 @@ class VueConnexion extends VueGenerique {
 
     public function confirm_deconnexion() {
         echo "<p>Vous avez été déconnecté(e) avec succès.</p>";
+        header("Refresh: 2; url=http://saemanager7.infy.uk/");
+        exit();
     }
 }
 
