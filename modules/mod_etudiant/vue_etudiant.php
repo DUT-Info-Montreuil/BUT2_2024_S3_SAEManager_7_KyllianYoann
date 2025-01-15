@@ -130,8 +130,8 @@ class VueEtudiant extends VueGenerique {
                                 <td><?= htmlspecialchars($livrable['date_limite'] ?? 'N/A'); ?></td>
                                 <td><?= htmlspecialchars($livrable['statut'] ?? 'Non spécifié'); ?></td>
                                 <td>
-                                    <a href="#" class="action-btn">Soumettre</a>
-                                    <a href="#" class="action-btn">Détails</a>
+                                    <a href="index.php?module=etudiant&action=form_soumettre_rendu&id=<?= $livrable['id_livrable']; ?>" class="action-btn">Soumettre</a>
+                                    <a href="index.php?module=etudiant&action=details_livrable&id=<?= $livrable['id_livrable']; ?>" class="action-btn">Détails</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -190,7 +190,7 @@ class VueEtudiant extends VueGenerique {
         <?php
     }
 
-    public function form_soumettre_rendu($livrables) {
+    public function form_soumettre_rendu($livrable = null, $livrables = []) {
         ?>
         <style>
             .form-container {
@@ -249,19 +249,27 @@ class VueEtudiant extends VueGenerique {
 
         <div class="form-container">
             <h1>Soumettre un Rendu</h1>
+            <?php if ($livrable): ?>
+                <h2>Pour le Livrable : <?= htmlspecialchars($livrable['titre_livrable'] ?? 'Non défini'); ?></h2>  
+                <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description'] ?? 'Non défini'); ?></p>
+                <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient'] ?? 'Non défini'); ?></p>
+                <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite'] ?? 'Non défini'); ?></p>
+            <?php endif; ?>
+
             <form action="index.php?module=etudiant&action=soumettre_rendu" method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="titre">Titre :</label>
-                    <input type="text" id="titre" name="titre" placeholder="Entrez le titre" required>
-                </div>
-                <div class="form-group">
-                    <label for="livrable_id">Livrable :</label>
-                    <select id="livrable_id" name="livrable_id" required>
-                        <?php foreach ($livrables as $livrable): ?>
-                            <option value="<?= $livrable['id_livrable']; ?>"><?= htmlspecialchars($livrable['titre_livrable']); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <?php if (!$livrable): ?>
+                    <div class="form-group">
+                        <label for="livrable_id">Choisissez un Livrable :</label>
+                        <select id="livrable_id" name="livrable_id" required>
+                            <?php foreach ($livrables as $l): ?>
+                                <option value="<?= $l['id_livrable']; ?>"><?= htmlspecialchars($l['titre_livrable']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php else: ?>
+                    <input type="hidden" name="livrable_id" value="<?= $livrable['id_livrable'] ?? 'Non défini'; ?>">
+                <?php endif; ?>
+
                 <div class="form-group">
                     <label for="fichier">Fichier :</label>
                     <input type="file" id="fichier" name="fichier" required>
@@ -271,4 +279,121 @@ class VueEtudiant extends VueGenerique {
         </div>
         <?php
     }
+
+    public function details_livrable($livrable, $rendu, $evaluations, $feedbacks, $commentaires) {
+    ?>
+    <style>
+        .details-container {
+            margin: 40px auto;
+            max-width: 800px;
+            padding: 30px;
+            background-color: #f7f9fc;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .details-container h1, h2, h3 {
+            color: #2c3e50;
+        }
+
+        .details-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .details-container ul li {
+            margin-bottom: 10px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-submit {
+            padding: 10px 20px;
+            background-color: #4cd137;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #44bd32;
+        }
+    </style>
+
+    <div class="details-container">
+        <h1>Détails du Livrable : <?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
+        <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description']); ?></p>
+        <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient']); ?></p>
+        <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite']); ?></p>
+
+        <h2>Votre Rendu</h2>
+        <?php if ($rendu): ?>
+            <p><a href="<?= htmlspecialchars($rendu['fichier']); ?>" target="_blank">Télécharger le rendu</a></p>
+            <form action="index.php?module=etudiant&action=modifier_rendu" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="livrable_id" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                <div class="form-group">
+                    <label for="nouveau_fichier">Modifier le Fichier :</label>
+                    <input type="file" id="nouveau_fichier" name="fichier" required>
+                </div>
+                <button type="submit" class="form-submit">Mettre à Jour</button>
+            </form>
+        <?php else: ?>
+            <p>Aucun rendu soumis pour ce livrable.</p>
+        <?php endif; ?>
+
+        <h2>Évaluations</h2>
+        <?php foreach ($evaluations as $evaluation): ?>
+            <h3>Évaluation : <?= htmlspecialchars($evaluation['type']); ?> (Note : <?= htmlspecialchars($evaluation['note']); ?>)</h3>
+            <ul>
+                <?php if (isset($commentaires[$evaluation['id_evaluation']])): ?>
+                    <?php foreach ($commentaires[$evaluation['id_evaluation']] as $commentaire): ?>
+                        <li>
+                            <p><?= htmlspecialchars($commentaire['contenu']); ?></p>
+                            <small><?= htmlspecialchars($commentaire['date_commentaire']); ?></small>
+                        </li>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <li>Aucun commentaire pour cette évaluation.</li>
+                <?php endif; ?>
+            </ul>
+            <form action="index.php?module=etudiant&action=ajouter_commentaire" method="POST">
+                <input type="hidden" name="evaluation_id" value="<?= $evaluation['id_evaluation']; ?>">
+                <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea>
+                <button type="submit" class="form-submit">Ajouter</button>
+            </form>
+        <?php endforeach; ?>
+
+        <h2>Feedbacks</h2>
+        <ul>
+            <?php foreach ($feedbacks as $feedback): ?>
+                <li><?= htmlspecialchars($feedback['contenu']); ?> (<?= htmlspecialchars($feedback['date_feedback']); ?>)</li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php
+}
+
 }
