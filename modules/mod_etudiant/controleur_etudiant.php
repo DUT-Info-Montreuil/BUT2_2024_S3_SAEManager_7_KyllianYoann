@@ -115,39 +115,51 @@ class ControleurEtudiant {
         }
     }
     
-    private function details_livrable() { 
+    private function details_livrable() {
     // Vérifie si l'ID du livrable est passé dans l'URL
     $id_livrable = $_GET['id'] ?? null;
 
-    if ($id_livrable) {
-        // Récupère les informations du livrable
-        $livrable = $this->modele->get_livrable($id_livrable);
-
-        if ($livrable) {
-            // Récupère les évaluations associées au livrable
-            $evaluations = $this->modele->get_evaluations($id_livrable);
-
-            // Récupère les feedbacks associés au livrable (utilisation de get_feedbacks_by_livrable)
-            $feedbacks = $this->modele->get_feedbacks_by_livrable($id_livrable);
-
-            // Récupère les commentaires pour chaque évaluation
-            $commentaires = [];
-            foreach ($evaluations as $evaluation) {
-                $commentaires[$evaluation['id_evaluation']] = $this->modele->get_commentaires($evaluation['id_evaluation']);
-            }
-
-            // Affiche la vue avec les détails du livrable
-            $this->vue->menu();
-            $this->vue->details_livrable($livrable, $evaluations, $feedbacks, $commentaires);
-        } else {
-            // Si le livrable n'existe pas
-            $this->vue->menu();
-            echo "<p>Livrable introuvable.</p>";
-        }
-    } else {
+    if (!$id_livrable) {
         // Si l'ID du livrable n'est pas spécifié ou est invalide
         $this->vue->menu();
         echo "<p>Aucun ID de livrable spécifié.</p>";
-        }
+        return;
+    }
+
+    // Vérifie si l'utilisateur est connecté
+    if (!isset($_SESSION['utilisateur_id'])) {
+        $this->vue->menu();
+        echo "<p>Utilisateur non connecté. Veuillez vous reconnecter.</p>";
+        return;
+    }
+
+    // Récupère les informations du livrable
+    $livrable = $this->modele->get_livrable($id_livrable);
+
+    if (!$livrable) {
+        // Si le livrable n'existe pas
+        $this->vue->menu();
+        echo "<p>Livrable introuvable.</p>";
+        return;
+    }
+
+    // Récupère les évaluations associées au livrable
+    $evaluations = $this->modele->get_evaluations($id_livrable) ?? [];
+
+    // Récupère les feedbacks associés au livrable
+    $feedbacks = $this->modele->get_feedbacks_by_livrable($id_livrable) ?? [];
+
+    // Récupère les commentaires pour chaque évaluation
+    $commentaires = [];
+    foreach ($evaluations as $evaluation) {
+        $commentaires[$evaluation['id_evaluation']] = $this->modele->get_commentaires($evaluation['id_evaluation']) ?? [];
+    }
+
+    // Récupère le rendu associé à l'utilisateur pour ce livrable
+    $rendu = $this->modele->get_rendu_by_livrable($id_livrable, $_SESSION['utilisateur_id']) ?? null;
+
+    // Affiche la vue avec les détails du livrable
+    $this->vue->menu();
+    $this->vue->details_livrable($livrable, $evaluations, $feedbacks, $commentaires, $rendu);
     }
 }
