@@ -318,6 +318,99 @@ class VueAdmin extends VueGenerique {
         <?php
     }
 
+    public function form_modifier_utilisateur($utilisateur) {
+    ?>
+    <style>
+        .form-container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group input[readonly] {
+            background-color: #f1f1f1;
+            cursor: not-allowed;
+        }
+
+        .form-submit {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #4cd137;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #44bd32;
+        }
+    </style>
+    <div class="form-container">
+        <h1>Modifier un Utilisateur</h1>
+        <form action="index.php?module=admin&action=modifier_utilisateur&id=<?= $utilisateur['id_utilisateur'] ?>" method="POST">
+            <div class="form-group">
+                <label for="nom">Nom :</label>
+                <input type="text" id="nom" name="nom" value="<?= htmlspecialchars($utilisateur['nom']) ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" value="<?= htmlspecialchars($utilisateur['prenom']) ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="login">Login :</label>
+                <input type="text" id="login" name="login" value="<?= htmlspecialchars($utilisateur['login']) ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="mdp">Nouveau Mot de Passe (laisser vide pour ne pas modifier) :</label>
+                <input type="password" id="mdp" name="mdp" placeholder="Entrer un nouveau mot de passe">
+            </div>
+            <div class="form-group">
+                <label for="role">Rôle :</label>
+                <select id="role" name="role" required>
+                    <option value="etudiant" <?= $utilisateur['role'] === 'etudiant' ? 'selected' : '' ?>>Étudiant</option>
+                    <option value="professeur" <?= $utilisateur['role'] === 'professeur' ? 'selected' : '' ?>>Professeur</option>
+                    <option value="admin" <?= $utilisateur['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="form-submit">Modifier l'Utilisateur</button>
+        </form>
+    </div>
+    <?php
+    }
+
     public function confirm_supprimer_utilisateur() {
         echo "<p>L'utilisateur a été supprimé avec succès.</p>";
     }
