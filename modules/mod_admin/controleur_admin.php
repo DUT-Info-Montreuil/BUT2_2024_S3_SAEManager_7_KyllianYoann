@@ -28,6 +28,12 @@ class ControleurAdmin {
             case "supprimer_utilisateur":
                 $this->supprimer_utilisateur();
                 break;
+            case "form_modifier_utilisateur":
+                $this->form_modifier_utilisateur();
+                break;
+            case "modifier_utilisateur":
+                $this->modifier_utilisateur();
+                break;
             case "liste_utilisateurs":
                 $this->liste_utilisateurs();
                 break;
@@ -48,11 +54,11 @@ class ControleurAdmin {
     }
 
     private function creer_utilisateur() {
-        $nom = isset($_POST["nom"]) ? $_POST["nom"] : die("Paramètre manquant");
-        $prenom = isset($_POST["prenom"]) ? $_POST["prenom"] : die("Paramètre manquant");
-        $login = isset($_POST["login"]) ? $_POST["login"] : die("Paramètre manquant");
-        $mdp = isset($_POST["mdp"]) ? $_POST["mdp"] : die("Paramètre manquant");
-        $role = isset($_POST["role"]) ? $_POST["role"] : die("Paramètre manquant");
+        $nom = isset($_POST["nom"]) ? $_POST["nom"] : die("Paramètre nom manquant");
+        $prenom = isset($_POST["prenom"]) ? $_POST["prenom"] : die("Paramètre prenom manquant");
+        $login = isset($_POST["login"]) ? $_POST["login"] : die("Paramètre login manquant");
+        $mdp = isset($_POST["mdp"]) ? $_POST["mdp"] : die("Paramètre mdp manquant");
+        $role = isset($_POST["role"]) ? $_POST["role"] : die("Paramètre role manquant");
 
         if ($this->modele->creer_utilisateur($nom, $prenom, $login, $mdp, $role)) {
             $this->vue->menu();
@@ -64,7 +70,7 @@ class ControleurAdmin {
     }
 
     private function supprimer_utilisateur() {
-        $id_utilisateur = isset($_GET["id"]) ? $_GET["id"] : die("Paramètre manquant");
+        $id_utilisateur = isset($_GET["id"]) ? $_GET["id"] : die("Paramètre id manquant");
 
         if ($this->modele->supprimer_utilisateur($id_utilisateur)) {
             $this->vue->menu();
@@ -74,6 +80,36 @@ class ControleurAdmin {
             $this->vue->erreurBD();
         }
     }
+
+    private function form_modifier_utilisateur() {
+    $id_utilisateur = isset($_GET["id"]) ? $_GET["id"] : die("Paramètre id manquant");
+    $utilisateur = $this->modele->get_utilisateur($id_utilisateur);
+     if ($utilisateur) {
+        $this->vue->menu();
+        $this->vue->form_modifier_utilisateur($utilisateur);
+    } else {
+        $this->vue->menu();
+        $this->vue->erreurBD();
+        }
+    }
+
+    private function modifier_utilisateur() {
+    $id_utilisateur = isset($_GET["id"]) ? $_GET["id"] : die("Paramètre id manquant");
+    $nom = isset($_POST["nom"]) ? $_POST["nom"] : die("Paramètre nom manquant");
+    $prenom = isset($_POST["prenom"]) ? $_POST["prenom"] : die("Paramètre prenom manquant");
+    $login = isset($_POST["login"]) ? $_POST["login"] : die("Paramètre login manquant");
+    $role = isset($_POST["role"]) ? $_POST["role"] : die("Paramètre role manquant");
+    $mdp = isset($_POST["mdp"]) && $_POST["mdp"] !== "" ? $_POST["mdp"] : null;
+
+    if ($this->modele->modifier_utilisateur($id_utilisateur, $nom, $prenom, $login, $mdp ?? null, $role)) {
+        $this->vue->menu();
+        echo "<p>L'utilisateur a été modifié avec succès.</p>";
+    } else {
+        $this->vue->menu();
+        $this->vue->erreurBD();
+        }
+    }
+
 
     private function liste_utilisateurs() {
         $utilisateurs = $this->modele->get_utilisateurs();
