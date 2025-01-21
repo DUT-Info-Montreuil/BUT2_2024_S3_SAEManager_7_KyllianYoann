@@ -97,10 +97,28 @@ class ControleurProfesseur {
         $description = isset($_POST["description"]) ? $_POST["description"] : die("Paramètre manquant");
         $date_limite = isset($_POST["date_limite"]) ? $_POST["date_limite"] : die("Paramètre manquant");
         $coefficient = isset($_POST["coefficient"]) ? $_POST["coefficient"] : die("Paramètre manquant");
+        $isIndividuel = isset($_POST["isIndividuel"]) ? $_POST["isIndividuel"] : die("Paramètre manquant");
+        $isIndividuel = ($isIndividuel==="True") ? true:false;
 
-        if ($this->modele->creer_livrable($titre, $description, $date_limite, $coefficient)) {
+        if ($this->modele->creer_livrable($titre, $description, $date_limite, $coefficient,$isIndividuel)) {
+            //en fonction de isIndividuel si c true on continue comme dab
+            if($isIndividuel==0){
             $this->vue->menu();
             $this->vue->confirm_creer_livrable();
+            }
+            //si c false on renvoie vers un autre form pour selectionner les groupes
+                // lister tt les eleves sous forme de button de type radio pr les selectionner
+                //apres sa lance une fonction créer grp qui prends en parametres la liste des eleves selectionner et tt ce qui est demander (nom de grp etc) elle sera definit das modele et appeller dans le controleur
+                //(pareil que 56 61)
+                //1 rediriger vers un nouveau form(permet de remplir param groupe)
+                //2 //(pareil que 56 61) avc dif nom
+                // 3 appel la fonction programmer elle va fortement a ca $this->modele->creer_livrable($titre, $description, $date_limite, $coefficient,$isIndividuel
+                //4 penser afficher pr l'eleve pour qu'ils voyent son groupe 
+        if else($isIndividuel==1){
+            //form groupe
+             $this->vue->menu();
+            $this->vue->confirm_creer_livrable();
+        }
         } else {
             $this->vue->menu();
             $this->vue->erreurBD();
