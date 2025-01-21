@@ -13,38 +13,78 @@ class ControleurProfesseur {
     }
 
     public function exec() {
-        $this->action = isset($_GET["action"]) ? $_GET["action"] : "dashboard";
+    $this->action = isset($_GET["action"]) ? $_GET["action"] : "dashboard";
 
-        switch ($this->action) {
-            case "dashboard":
-                $this->dashboard();
-                break;
-            case "form_creer_livrable":
-                $this->form_creer_livrable();
-                break;
-            case "creer_livrable":
-                $this->creer_livrable();
-                break;
-            case "consulter_rendus":
-                $this->consulter_rendus();
-                break;
-            case "ajouter_feedback":
-                $this->ajouter_feedback();
-                break;
-            default:
-                die("Action inexistante");
+    switch ($this->action) {
+        case "dashboard":
+            $this->dashboard();
+            break;
+        case "form_creer_projet":
+            $this->form_creer_projet();
+            break;
+        case "creer_projet": 
+            $this->creer_projet();
+            break;
+        case "form_creer_livrable":
+            $this->form_creer_livrable();
+            break;
+        case "creer_livrable":
+            $this->creer_livrable();
+            break;
+        case "consulter_rendus":
+            $this->consulter_rendus();
+            break;
+        case "ajouter_feedback":
+            $this->ajouter_feedback();
+            break;
+        default:
+            die("Action inexistante");
         }
     }
 
     private function dashboard() {
-        // Obtenir les informations du professeur
         $professeur_info = $this->modele->get_professeur($_SESSION['utilisateur_id']);
-        
-        // Obtenir les statistiques
         $statistiques = $this->modele->get_statistiques();
+        $projets = $this->modele->get_projets_responsable($_SESSION['utilisateur_id']);
 
         $this->vue->menu();
-        $this->vue->dashboard($professeur_info, $statistiques);
+        $this->vue->dashboard($professeur_info, $statistiques, $projets);
+    }
+
+
+    private function form_creer_projet() {
+        $promotions = $this->modele->get_promotions(); // Récupérer les promotions depuis la base
+        $professeurs = $this->modele->get_professeurs(); // Récupérer les professeurs disponibles
+        $this->vue->menu();
+        $this->vue->form_creer_projet($promotions, $professeurs);
+    }
+
+    public function creer_projet() {
+        $titre = $_POST['titre'] ?? null;
+        $description = $_POST['description'] ?? null;
+        $id_promo = $_POST['promotion'] ?? null;
+        $responsables = $_POST['responsables'] ?? [];
+
+    if (!$titre || !$description || !$id_promo || empty($responsables)) {
+        die("Tous les champs sont requis !");
+    }
+
+    $success = $this->modele->creer_projet($titre, $description, $id_promo, $responsables);
+
+    if ($success) {
+        $_SESSION['success'] = "Projet créé avec succès.";
+    } else {
+        $_SESSION['error'] = "Erreur lors de la création du projet.";
+    }
+
+    header("Location: index.php?module=professeur&action=dashboard");
+    exit();
+    }
+
+
+    private function form_creer_livrable() {
+        $this->vue->menu();
+        $this->vue->form_creer_livrable();
     }
 
     private function form_creer_livrable() {
