@@ -2,14 +2,15 @@
 
 class ModeleProfesseur extends Connexion {
 
-    public function creer_livrable($titre, $description, $date_limite, $coefficient) {
-        $req = "INSERT INTO Livrable (titre_livrable, description, date_limite, coefficient) VALUES (:titre, :description, :date_limite, :coefficient)";
+    public function creer_livrable($titre, $description, $date_limite, $coefficient,$isIndividuel) {
+        $req = "INSERT INTO Livrable (titre_livrable, description, date_limite, coefficient,isIndividuel) VALUES (:titre, :description, :date_limite, :coefficient,:isIndividuel)";
         $stmt = self::$bdd->prepare($req);
         $stmt->execute([
             "titre" => $titre,
             "description" => $description,
             "date_limite" => $date_limite,
-            "coefficient" => $coefficient
+            "coefficient" => $coefficient,
+            "isIndividuel" => $isIndividuel
         ]);
         return $stmt->rowCount() > 0;
     }
