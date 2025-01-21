@@ -3,156 +3,221 @@ class VueProfesseur extends VueGenerique {
     public function __construct() {
         parent::__construct();
     }
-
+    
     public function menu() {
-        ?>
-        <style>
-            .menu {
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                background-color: #2c3e50;
-                padding: 15px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
+    ?>
+    <style>
+        .menu {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #2c3e50;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-            .menu a {
-                color: white;
-                text-decoration: none;
-                font-weight: bold;
-                font-size: 16px;
-                padding: 10px 15px;
-                border-radius: 5px;
-                transition: background 0.3s ease;
-            }
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
 
-            .menu a:hover {
-                background-color: #4cd137;
-            }
+        .menu a:hover {
+            background-color: #4cd137;
+        }
 
-            .menu a.active {
-                background-color: #4cd137;
-            }
-        </style>
-        <nav class="menu">
-            <a href="index.php?module=professeur&action=dashboard" class="active">Dashboard</a>
-            <a href="index.php?module=professeur&action=form_creer_livrable">Créer un Livrable</a>
-            <a href="index.php?module=professeur&action=consulter_rendus">Consulter les Rendus</a>
-        </nav>
-        <?php
+        .menu a.active {
+            background-color: #4cd137;
+        }
+    </style>
+    <nav class="menu">
+        <a href="index.php?module=professeur&action=dashboard" class="active">Dashboard</a>
+        <a href="index.php?module=professeur&action=form_creer_projet">Créer un Projet</a>
+        <a href="index.php?module=professeur&action=form_creer_livrable">Créer un Livrable</a>
+        <a href="index.php?module=professeur&action=consulter_rendus">Consulter les Rendus</a>
+        <a href="index.php?module=connexion&action=deconnexion">Déconnexion</a>
+    </nav>
+    <?php
     }
 
-    public function dashboard($professeur_info, $statistiques) {
-        $nom = htmlspecialchars($professeur_info['nom'] ?? 'Inconnu');
-        $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
-        ?>
-        <style>
-            .dashboard-container {
-                margin: 20px auto;
-                max-width: 1200px;
-                padding: 30px;
-                background-color: #f9f9f9;
-                border-radius: 15px;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            }
+    public function dashboard($professeur_info, $statistiques, $projets) { 
+    $nom = htmlspecialchars($professeur_info['nom'] ?? 'Inconnu');
+    $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
+    ?>
+    <style>
+        .dashboard-container {
+            margin: 20px auto;
+            max-width: 1200px;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
 
-            .dashboard-header {
-                text-align: center;
-                margin-bottom: 30px;
-            }
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-            .dashboard-header h1 {
-                font-size: 32px;
-                color: #2c3e50;
-                margin-bottom: 10px;
-            }
+        .dashboard-header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
 
-            .dashboard-header p {
-                font-size: 18px;
-                color: #555;
-            }
+        .dashboard-header p {
+            font-size: 18px;
+            color: #555;
+        }
 
-            .stats-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
-            }
+        .projet-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
 
-            .stat-box {
-                flex: 1;
-                background-color: #ffffff;
-                padding: 20px;
-                margin: 0 10px;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                text-align: center;
-            }
+        .projet-card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
 
-            .stat-box h3 {
-                margin: 10px 0;
-                font-size: 24px;
-                color: #2c3e50;
-            }
+        .projet-card:hover {
+            transform: scale(1.05);
+        }
 
-            .stat-box p {
-                margin: 0;
-                font-size: 16px;
-                color: #777;
-            }
+        .projet-card h3 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
 
-            .stat-icon {
-                font-size: 40px;
-                color: #4cd137;
-                margin-bottom: 10px;
-            }
+        .projet-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
 
-            .message {
-                text-align: center;
-                font-size: 16px;
-                color: green;
-                margin-bottom: 20px;
-            }
+        .projet-card a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: white;
+            background-color: #4cd137;
+            text-decoration: none;
+            border-radius: 5px;
+        }
 
-            .error-message {
-                text-align: center;
-                font-size: 16px;
-                color: red;
-                margin-bottom: 20px;
-            }
-        </style>
+        .projet-card a:hover {
+            background-color: #44bd32;
+        }
 
-        <div class="dashboard-container">
-            <div class="dashboard-header">
-                <h1>Dashboard (<?= $nom; ?> <?= $prenom; ?>)</h1>
-                <p>Bienvenue dans votre espace de gestion des livrables et rendus.</p>
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 20px;
+            margin: 0 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            margin: 10px 0;
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .stat-box p {
+            margin: 0;
+            font-size: 16px;
+            color: #777;
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            color: #4cd137;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 16px;
+            color: green;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            text-align: center;
+            font-size: 16px;
+            color: red;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Dashboard (<?= $nom; ?> <?= $prenom; ?>)</h1>
+            <p>Bienvenue dans votre espace de gestion des projets et rendus.</p>
+        </div>
+
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="message"><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
+        <?php elseif (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-icon">🗂️</div>
+                <h3><?= htmlspecialchars($statistiques['livrables_total'] ?? 0); ?></h3>
+                <p>Livrables créés</p>
             </div>
-
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="message"><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
-            <?php elseif (isset($_SESSION['error'])): ?>
-                <div class="error-message"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
-            <?php endif; ?>
-
-            <div class="stats-container">
-                <div class="stat-box">
-                    <div class="stat-icon">🗂️</div>
-                    <h3><?= htmlspecialchars($statistiques['livrables_total'] ?? 0); ?></h3>
-                    <p>Livrables créés</p>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-icon">📋</div>
-                    <h3><?= htmlspecialchars($statistiques['rendus_total'] ?? 0); ?></h3>
-                    <p>Rendus soumis</p>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-icon">✉️</div>
-                    <h3><?= htmlspecialchars($statistiques['feedbacks_total'] ?? 0); ?></h3>
-                    <p>Feedbacks donnés</p>
-                </div>
+            <div class="stat-box">
+                <div class="stat-icon">📋</div>
+                <h3><?= htmlspecialchars($statistiques['rendus_total'] ?? 0); ?></h3>
+                <p>Rendus soumis</p>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">✉️</div>
+                <h3><?= htmlspecialchars($statistiques['feedbacks_total'] ?? 0); ?></h3>
+                <p>Feedbacks donnés</p>
             </div>
         </div>
-        <?php
+
+        <div class="projet-card-container">
+            <?php if (!empty($projets)): ?>
+                <?php foreach ($projets as $projet): ?>
+                    <div class="projet-card">
+                        <h3><?= htmlspecialchars($projet['titre']); ?></h3>
+                        <p><?= htmlspecialchars($projet['description']); ?></p>
+                        <a href="index.php?module=professeur&action=details_projet&id_projet=<?= $projet['id_projet']; ?>">Voir le Projet</a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Aucun projet disponible.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
     }
 
     public function form_creer_livrable() {
@@ -336,6 +401,98 @@ class VueProfesseur extends VueGenerique {
             </table>
         </div>
         <?php
+    }
+
+    public function form_creer_projet($promotions, $professeurs) {
+    ?>
+    <style>
+        .form-container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-submit {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #4cd137;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #44bd32;
+        }
+    </style>
+    <div class="form-container">
+        <h1>Créer un Projet</h1>
+        <form action="index.php?module=professeur&action=creer_projet" method="POST">
+            <div class="form-group">
+                <label for="titre">Titre :</label>
+                <input type="text" id="titre" name="titre" placeholder="Titre du projet" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" placeholder="Détaillez le contenu du projet" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="promotion">Promotion :</label>
+                <select id="promotion" name="promotion" required>
+                    <option value="" disabled selected>Choisissez une promotion</option>
+                    <?php foreach ($promotions as $promo): ?>
+                        <option value="<?= $promo['id_promo']; ?>"><?= htmlspecialchars($promo['nom_promo']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="responsables">Professeurs responsables :</label>
+                <select id="responsables" name="responsables[]" multiple required>
+                    <?php foreach ($professeurs as $prof): ?>
+                        <option value="<?= $prof['id_utilisateur']; ?>">
+                            <?= htmlspecialchars($prof['nom'] . ' ' . $prof['prenom']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <button type="submit" class="form-submit">Créer le Projet</button>
+        </form>
+    </div>
+    <?php
     }
 
     public function confirm_creer_livrable() {
