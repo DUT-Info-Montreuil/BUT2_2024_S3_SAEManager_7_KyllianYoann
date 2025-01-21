@@ -11,9 +11,7 @@
     // Condition pour afficher ou masquer le header
     if (!(!isset($_GET['module']) || $_GET['module'] === 'connexion')): ?>
         <header>
-            <?php if (isset($_SESSION['utilisateur_id'])): ?>
-                <a href="index.php?module=connexion&action=deconnexion">Déconnexion</a>
-            <?php endif; ?>
+           
         </header>
     <?php endif; ?>
 
