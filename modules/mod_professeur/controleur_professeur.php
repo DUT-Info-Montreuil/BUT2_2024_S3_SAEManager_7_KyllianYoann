@@ -46,6 +46,21 @@ class ControleurProfesseur {
         case "detail_projet":
             $this->detail_projet();
             break;
+        case "gestion_groupes":
+            $this->gestion_groupes();
+            break;
+        case "creer_groupe":
+            $this->creer_groupe();
+            break;
+        case "modifier_groupe":
+            $this->modifier_groupe();
+            break;
+        case "mettre_a_jour_groupe":
+            $this->mettre_a_jour_groupe();
+            break;
+        case "supprimer_groupe":
+            $this->supprimer_groupe();
+            break;
         default:
             die("Action inexistante : " . htmlspecialchars($this->action));
         }
@@ -222,6 +237,145 @@ class ControleurProfesseur {
             $this->vue->erreurBD();
         }
     }
+
+    private function gestion_groupes() {
+        $id_projet = $_GET['id_projet'] ?? null;
+        if (!$id_projet) {
+            die("Projet non spécifié !");
+        }
+
+        // Vérifie si le professeur connecté est responsable de ce projet
+        $responsable = $this->modele->est_responsable_projet($id_projet, $_SESSION['utilisateur_id']);
+        if (!$responsable) {
+            die("Accès non autorisé. (Vérification responsable)");
+        }
+
+        // Récupérer les étudiants des promotions du projet
+        $etudiants = $this->modele->get_etudiants_promotions($id_projet);
+        // Récupérer les groupes existants pour ce projet
+        $groupes = $this->modele->get_groupes_par_projet($id_projet);
+
+        // Afficher la vue
+        $this->vue->menu();
+        $this->vue->gestion_groupes($id_projet, $etudiants, $groupes);
+    }
+
+    private function creer_groupe() {
+        // Vérifiez que l'utilisateur est connecté
+        if (!isset($_SESSION['utilisateur_id'])) {
+            die("Accès non autorisé.");
+        }
+
+        // Récupérez les données du formulaire
+        $id_projet = $_POST['id_projet'] ?? null;
+        $nom_groupe = $_POST['nom_groupe'] ?? null;
+        $etudiants = $_POST['etudiants'] ?? [];
+
+        // Vérifiez que les champs requis sont remplis
+        if (!$id_projet || !$nom_groupe || empty($etudiants)) {
+            die("Tous les champs sont obligatoires.");
+        }
+
+        // Créez le groupe dans le modèle
+        if ($this->modele->creer_groupe($nom_groupe, $id_projet, $etudiants)) {
+            $_SESSION['success'] = "Groupe créé avec succès.";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la création du groupe.";
+        }
+
+        // Redirigez vers la gestion des groupes
+        header("Location: index.php?module=professeur&action=gestion_groupes&id_projet=" . urlencode($id_projet));
+        exit();
+    }
+
+    private function modifier_groupe() {
+        if (!isset($_SESSION['utilisateur_id'])) {
+            die("Accès non autorisé.");
+        }
+
+        $id_groupe = $_GET['id_groupe'] ?? null;
+
+        if (!$id_groupe) {
+            die("Groupe non spécifié !");
+        }
+
+        // Récupérer les informations du groupe
+        $groupe = $this->modele->get_groupe($id_groupe);
+        $id_projet = $groupe['projet_id'] ?? null;
+
+        if (!$groupe) {
+            die("Groupe introuvable !");
+        }
+
+        // Récupérer les étudiants disponibles pour ce projet
+        $etudiants_disponibles = $this->modele->get_etudiants_promotions($id_projet);
+
+        // Récupérer les membres actuels du groupe
+        $membres_actuels = $this->modele->get_membres_groupe($id_groupe);
+
+        // Fusionner les listes pour que les membres actuels soient dans la liste des étudiants disponibles
+        foreach ($membres_actuels as $membre) {
+            if (!in_array($membre, $etudiants_disponibles)) {
+                $etudiants_disponibles[] = $membre;
+            }
+        }
+
+        // Ajouter les IDs des membres actuels au groupe pour faciliter leur sélection dans la vue
+        $groupe['membres_ids'] = array_column($membres_actuels, 'id_utilisateur');
+
+        $this->vue->menu();
+        $this->vue->form_modifier_groupe($groupe, $etudiants_disponibles);
+    }
+
+    private function mettre_a_jour_groupe() {
+        if (!isset($_SESSION['utilisateur_id'])) {
+            die("Accès non autorisé.");
+        }
+
+        $id_groupe = $_POST['id_groupe'] ?? null;
+        $id_projet = $_POST['id_projet'] ?? null;
+        $nom_groupe = $_POST['nom_groupe'] ?? null;
+        $etudiants = $_POST['etudiants'] ?? [];
+
+        if (!$id_groupe || !$nom_groupe || empty($etudiants)) {
+            die("Tous les champs sont obligatoires.");
+        }
+
+        // Mettre à jour le groupe dans le modèle
+        if ($this->modele->mettre_a_jour_groupe($id_groupe, $nom_groupe, $etudiants)) {
+            $_SESSION['success'] = "Groupe mis à jour avec succès.";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la mise à jour du groupe.";
+        }
+
+        // Redirigez vers la gestion des groupes
+        header("Location: index.php?module=professeur&action=gestion_groupes&id_projet=" . urlencode($id_projet));
+        exit();
+    }
+
+    private function supprimer_groupe() {
+        if (!isset($_SESSION['utilisateur_id'])) {
+            die("Accès non autorisé.");
+        }
+
+        $id_groupe = $_GET['id_groupe'] ?? null;
+
+        if (!$id_groupe) {
+            die("Groupe non spécifié !");
+        }
+
+        // Supprimer le groupe
+        if ($this->modele->supprimer_groupe($id_groupe)) {
+            $_SESSION['success'] = "Groupe supprimé avec succès.";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la suppression du groupe.";
+        }
+
+        // Rediriger vers la gestion des groupes
+        header("Location: index.php?module=professeur&action=gestion_groupes&id_projet=" . $_GET['id_projet']);
+        exit();
+    }
+
 
     private function consulter_rendus() {
         $livrables = $this->modele->get_livrables();
