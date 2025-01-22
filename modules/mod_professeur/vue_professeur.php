@@ -2001,6 +2001,248 @@ class VueProfesseur extends VueGenerique {
         <?php
     }
 
+    public function form_modifier_evaluation($evaluation) {
+    ?>
+        <style>
+        /* Conteneur général */
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        /* En-tête */
+        .container h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        /* Étiquettes */
+        .container label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Champs de formulaire */
+        .container input, 
+        .container textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #ffffff;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease;
+        }
+
+        .container input:focus, 
+        .container textarea:focus {
+            border-color: #4cd137;
+            outline: none;
+        }
+
+        /* Boutons */
+        .btn {
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: #4cd137;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+        background-color: #44bd32;
+        }
+
+        /* Paragraphes */
+        .container p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 15px;
+        line-height: 1.6;
+        }
+
+        /* Texte en gras */
+        .container p strong {
+        color: #2c3e50;
+        }
+
+        /* Liens */
+        .container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .container a:hover {
+            background-color: #2980b9;
+        }
+        </style>
+
+        <div class="container">
+        <h1>Modifier l'Évaluation</h1>
+        <form action="index.php?module=professeur&action=modifier_evaluation" method="POST">
+            <input type="hidden" name="id_evaluation" value="<?= htmlspecialchars($evaluation['id_evaluation']); ?>">
+            
+            <label for="titre">Titre :</label>
+            <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($evaluation['titre']); ?>" required>
+            
+            <label for="description">Description :</label>
+            <textarea id="description" name="description" rows="4" required><?= htmlspecialchars($evaluation['description']); ?></textarea>
+            
+            <label for="note">Note :</label>
+            <input type="number" id="note" name="note" value="<?= htmlspecialchars($evaluation['note']); ?>" step="0.01" max="20" required>
+            
+            <label for="coefficient">Coefficient :</label>
+            <input type="number" id="coefficient" name="coefficient" value="<?= htmlspecialchars($evaluation['coefficient']); ?>" step="0.1" required>
+            
+            <button type="submit" class="btn">Enregistrer les modifications</button>
+        </form>
+        </div>
+        <?php
+    }   
+
+    public function detail_evaluation($evaluation) {
+        ?>
+        <style>
+        /* Conteneur général */
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        /* En-tête */
+        .container h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        /* Étiquettes */
+        .container label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Champs de formulaire */
+        .container input, 
+        .container textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #ffffff;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease;
+        }
+
+        .container input:focus, 
+        .container textarea:focus {
+            border-color: #4cd137;
+            outline: none;
+        }
+
+        /* Boutons */
+        .btn {
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: #4cd137;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+        background-color: #44bd32;
+        }
+
+        /* Paragraphes */
+        .container p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 15px;
+        line-height: 1.6;
+        }
+
+        /* Texte en gras */
+        .container p strong {
+        color: #2c3e50;
+        }
+
+        /* Liens */
+        .container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .container a:hover {
+            background-color: #2980b9;
+        }
+        </style>
+        <div class="container">
+            <h1>Détails de l'Évaluation</h1>
+            <p><strong>Titre :</strong> <?= htmlspecialchars($evaluation['titre']); ?></p>
+            <p><strong>Description :</strong> <?= htmlspecialchars($evaluation['description']); ?></p>
+            <p><strong>Note :</strong> <?= htmlspecialchars($evaluation['note']); ?></p>
+            <p><strong>Type :</strong> <?= htmlspecialchars($evaluation['type']); ?></p>
+            <p><strong>Coefficient :</strong> <?= htmlspecialchars($evaluation['coefficient']); ?></p>
+            <a href="index.php?module=professeur&action=gestion_evaluations&id_projet=<?= $evaluation['id_projet']; ?>" class="btn">Retour</a>
+        </div>
+        <?php
+    }
+
 
     public function confirm_creer_livrable() {
         echo "<p style='color: green; text-align: center;'>Le livrable a été créé avec succès.</p>";
