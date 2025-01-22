@@ -103,6 +103,15 @@ class ControleurProfesseur {
                 header("Location: index.php?module=professeur&action=dashboard");
             }
             break;
+        case "gestion_evaluations":
+            $this->gestion_evaluations();
+            break;
+        case 'form_creer_evaluation':
+            $this->form_creer_evaluation();
+            break;
+        case 'creer_evaluation':
+            $this->creer_evaluation();
+            break;
         default:
             die("Action inexistante : " . htmlspecialchars($this->action));
         }
@@ -495,28 +504,6 @@ class ControleurProfesseur {
         $this->vue->gestion_groupes($id_projet, $etudiants, $groupes);
     }
 
-      private function gestion_evaluations() {
-        $id_projet = $_GET['id_projet'] ?? null;
-        if (!$id_projet) {
-            die("Projet non spécifié !");
-        }
-
-        // Vérifie si le professeur connecté est responsable de ce projet
-        $responsable = $this->modele->est_responsable_projet($id_projet, $_SESSION['utilisateur_id']);
-        if (!$responsable) {
-            die("Accès non autorisé. (Vérification responsable)");
-        }
-
-        // Récupérer les étudiants des promotions du projet
-        $etudiants = $this->modele->get_etudiants_promotions($id_projet);
-        // Récupérer les groupes existants pour ce projet
-        $groupes = $this->modele->get_groupes_par_projet($id_projet);
-
-        // Afficher la vue
-        $this->vue->menu();
-        $this->vue->gestion_evaluations($id_projet, $etudiants, $groupes);
-    }
-
     private function creer_groupe() {
         // Vérifiez que l'utilisateur est connecté
         if (!isset($_SESSION['utilisateur_id'])) {
@@ -652,5 +639,59 @@ class ControleurProfesseur {
             $this->vue->menu();
             $this->vue->erreurBD();
         }
+    }
+
+    public function gestion_evaluations() {
+        $id_projet = $_GET['id_projet'] ?? null;
+        if (!$id_projet) {
+        die("Projet non spécifié.");
+        }
+
+        $responsable = $this->modele->est_responsable_projet($id_projet, $_SESSION['utilisateur_id']);
+        if (!$responsable) {
+            die("Accès non autorisé. (Vérification responsable)");
+        }
+
+        $this->vue->menu();
+        $etudiants = $this->modele->get_etudiants_promotions($id_projet);
+        $groupes = $this->modele->get_groupes_par_projet($id_projet);
+        $evaluations = $this->modele->get_evaluations_par_projet($id_projet); // Méthode à créer
+        $projet = $this->modele->get_projet($id_projet); // Récupère les infos du projet
+        $this->vue->gestion_evaluations($projet, $evaluations); // Méthode vue
+    }
+
+    public function form_creer_evaluation() {
+        $id_projet = $_GET['id_projet'] ?? null;
+        if (!$id_projet) {
+            die("Projet non spécifié.");
+        }
+        $groupes = $this->modele->get_groupes_par_projet($id_projet);
+        $rendus = $this->modele->get_rendus_par_projet($id_projet);
+        $projet = $this->modele->get_projet($id_projet);
+        $this->vue->menu();
+        $this->vue->form_creer_evaluation($projet, $groupes, $rendus);
+    }
+
+    public function creer_evaluation() {
+        $data = [
+        'titre' => $_POST['titre'] ?? null,
+        'note' => $_POST['note'] ?? null,
+        'coefficient' => $_POST['coefficient'] ?? 1.0,
+        'description' => $_POST['description'] ?? null,
+        'type' => $_POST['type'] ?? 'individuel',
+        'id_projet' => $_POST['id_projet'] ?? null,
+        'id_groupe' => $_POST['id_groupe'] ?? null,
+        'rendu_id' => $_POST['rendu_id'] ?? null,
+        'evaluateur_id' => $_SESSION['id_utilisateur']
+        ];
+
+        if ($this->modele->creer_evaluation($data)) {
+        $_SESSION['success'] = "Évaluation créée avec succès.";
+        } else {
+        $_SESSION['error'] = "Erreur lors de la création de l'évaluation.";
+        }
+
+        header("Location: index.php?module=professeur&action=gestion_evaluations&id_projet=" . $data['id_projet']);
+        exit();
     }
 }
