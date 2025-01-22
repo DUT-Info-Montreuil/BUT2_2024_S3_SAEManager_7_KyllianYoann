@@ -42,6 +42,60 @@ class ModeleEtudiant extends Connexion {
     //   GETTERS ICI   //
     /////////////////////
 
+    public function get_fichiers_livrable($id_livrable) {
+        try {
+            $req = "SELECT nom_fichier, chemin_fichier
+                    FROM Fichier
+                    WHERE id_livrable = :id_livrable";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_livrable' => $id_livrable]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_fichiers_livrable: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function get_promotions_projet($id_projet) {
+        try {
+        $req = "SELECT p.nom_promo
+                FROM Promo p
+                JOIN Projet_Promotion pp ON p.id_promo = pp.id_promo
+                WHERE pp.id_projet = :id_projet";
+        $stmt = self::$bdd->prepare($req);
+        $stmt->execute(['id_projet' => $id_projet]);
+
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Si aucun résultat, retourner un tableau vide pour éviter les erreurs
+        if (!$result) {
+            return [];
+        }
+
+        return $result;
+        } catch (PDOException $e) {
+        error_log("Erreur dans get_promotions_projet: " . $e->getMessage());
+        return [];
+        }
+    }
+
+    public function get_responsables_projet($id_projet) {
+        try {
+        $req = "SELECT u.prenom, u.nom
+                FROM Utilisateur u
+                JOIN Responsable_Projet rp ON u.id_utilisateur = rp.id_professeur
+                WHERE rp.id_projet = :id_projet";
+        $stmt = self::$bdd->prepare($req);
+        $stmt->execute(['id_projet' => $id_projet]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+        error_log("Erreur dans get_responsables_projet: " . $e->getMessage());
+        return [];
+        }
+    }
+
+
+
     public function get_projets_pour_etudiant($etudiant_id) {
         try {
             $req = "
