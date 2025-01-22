@@ -48,17 +48,20 @@ class ControleurEtudiant {
         if (!$id_projet) {
             $this->rediriger("index.php?module=etudiant&action=dashboard", "Projet non spécifié.", "error");
         }
+
         $projet = $this->modele->get_projet($id_projet);
-        $groupes = $this->modele->get_groupes_par_projet($id_projet);
+        $promotions = $this->modele->get_promotions_projet($id_projet);
+        $responsables = $this->modele->get_responsables_projet($id_projet);
+        $groupes = $this->modele->get_groupes_par_projet($id_projet); 
         $livrables = $this->modele->get_livrables_par_projet($id_projet);
 
         $etudiant_id = $_SESSION['utilisateur_id'];
         $groupe_etudiant = $this->modele->get_groupe_etudiant($etudiant_id, $id_projet);
 
-        // Appel unique à la vue
-        $this->vue->afficher_detail_projet($projet, $livrables, $groupes, $groupe_etudiant);
+        $this->vue->afficher_detail_projet($projet, $livrables, $groupes, $groupe_etudiant, $promotions, $responsables);
     }
 
+   
     private function afficher_detail_livrable() {
         $id_livrable = $this->valider_entree('id_livrable', FILTER_VALIDATE_INT);
         if (!$id_livrable) {
@@ -66,10 +69,11 @@ class ControleurEtudiant {
         }
 
         $livrable = $this->modele->get_livrable($id_livrable);
+        $fichiers = $this->modele->get_fichiers_livrable($id_livrable); // Récupère les fichiers
         $etudiant_id = $_SESSION['utilisateur_id'];
         $rendu = $this->modele->get_rendu_etudiant($id_livrable, $etudiant_id);
 
-        $this->vue->afficher_detail_livrable($livrable, $rendu);
+        $this->vue->afficher_detail_livrable($livrable, $fichiers, $rendu);
     }
 
     private function soumettre_rendu() {
