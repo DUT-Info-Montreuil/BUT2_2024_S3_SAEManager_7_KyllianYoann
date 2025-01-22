@@ -1,5 +1,4 @@
 <?php
-
 class VueEtudiant extends VueGenerique {
     public function __construct() {
         parent::__construct();
@@ -8,816 +7,388 @@ class VueEtudiant extends VueGenerique {
     public function menu() {
         ?>
         <style>
-            .menu {
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                background-color: #2c3e50;
-                padding: 15px 20px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
+        .menu {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #2c3e50;
+            padding: 15px 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-            .menu a {
-                color: white;
-                text-decoration: none;
-                font-weight: bold;
-                font-size: 18px;
-                transition: color 0.3s ease;
-            }
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
 
-            .menu a:hover {
-                color: #4cd137;
-            }
+        .menu a:hover {
+            background-color: #4cd137;
+        }
 
-            .menu a.active {
-                color: #4cd137;
-                border-bottom: 2px solid #4cd137;
-            }
+        .menu a.active {
+            background-color: #4cd137;
+        }
         </style>
+
         <nav class="menu">
             <a href="index.php?module=etudiant&action=dashboard" class="active">Tableau de Bord</a>
-            <a href="index.php?module=etudiant&action=form_soumettre_rendu">Soumettre un Rendu</a>
             <a href="index.php?module=etudiant&action=consulter_feedbacks">Consulter les Feedbacks</a>
+            <a href="index.php?module=etudiant&action=consulter_notifications">Notifications</a>
+            <a href="index.php?module=etudiant&action=messagerie">Messagerie</a>
+            <a href="index.php?module=connexion&action=deconnexion">Déconnexion</a>
         </nav>
         <?php
     }
 
-    public function dashboard($livrables, $groupe, $coefficients) {
+    public function afficher_dashboard($projets, $etudiant) {
+        $this->menu();
         ?>
         <style>
-            /* Tableau de bord */
             .dashboard-container {
-                margin: 20px auto;
-                max-width: 1200px;
-                padding: 30px;
-                background-color: #ffffff;
-                border-radius: 15px;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            }
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
 
-            .section {
-                margin-bottom: 40px;
-            }
+        .dashboard-container h1 {
+            font-size: 28px;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
 
-            .section h2 {
-                font-size: 24px;
-                margin-bottom: 15px;
-                color: #2c3e50;
-                border-bottom: 2px solid #f1f1f1;
-                padding-bottom: 5px;
-            }
+        .projet-card {
+            display: inline-block;
+            width: 30%;
+            margin: 10px 1%;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
 
-            .livrable-table, .group-table, .coeff-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-            }
+        .projet-card:hover {
+            transform: scale(1.03);
+        }
 
-            .livrable-table th, .group-table th, .coeff-table th,
-            .livrable-table td, .group-table td, .coeff-table td {
-                padding: 15px;
-                text-align: left;
-                border: 1px solid #ddd;
-            }
+        .projet-card h3 {
+            font-size: 20px;
+            color: #4cd137;
+            margin: 15px;
+        }
 
-            .livrable-table th, .group-table th, .coeff-table th {
-                background-color: #4cd137;
-                color: white;
-            }
+        .projet-card p {
+            font-size: 14px;
+            color: #555;
+            margin: 0 15px 15px 15px;
+            line-height: 1.6;
+        }
 
-            .livrable-table tr:nth-child(even),
-            .group-table tr:nth-child(even),
-            .coeff-table tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
+        .projet-card a {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            background-color: #4cd137;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
 
-            .livrable-table tr:hover,
-            .group-table tr:hover,
-            .coeff-table tr:hover {
-                background-color: #f1f1f1;
-            }
-
-            .action-btn {
-                color: #3498db;
-                text-decoration: none;
-                font-weight: bold;
-                margin-right: 10px;
-                transition: color 0.3s ease;
-            }
-
-            .action-btn:hover {
-                color: #2980b9;
-            }
+        .projet-card a:hover {
+            background-color: #44bd32;
+        }
         </style>
 
         <div class="dashboard-container">
-            <!-- Section des livrables -->
-            <div class="section">
-                <h2>Mes Livrables</h2>
-                <table class="livrable-table">
-                    <thead>
-                        <tr>
-                            <th>Titre</th>
-                            <th>Date Limite</th>
-                            <th>Statut</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($livrables as $livrable): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($livrable['titre_livrable'] ?? 'N/A'); ?></td>
-                                <td><?= htmlspecialchars($livrable['date_limite'] ?? 'N/A'); ?></td>
-                                <td><?= htmlspecialchars($livrable['statut'] ?? 'Non spécifié'); ?></td>
-                                <td>
-                                    <a href="index.php?module=etudiant&action=form_soumettre_rendu&id=<?= $livrable['id_livrable']; ?>" class="action-btn">Soumettre</a>
-                                    <a href="index.php?module=etudiant&action=details_livrable&id=<?= $livrable['id_livrable']; ?>" class="action-btn">Détails</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Section Groupe -->
-            <div class="section">
-                <h2>Mon Groupe</h2>
-                <table class="group-table">
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Membres</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><?= htmlspecialchars($groupe['nom_groupe'] ?? 'Aucun groupe assigné'); ?></td>
-                            <td>
-                                <?php if (!empty($groupe['membres']) && is_array($groupe['membres'])): ?>
-                                    <?php foreach ($groupe['membres'] as $membre): ?>
-                                        <?= htmlspecialchars($membre); ?> <br>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    Aucun membre dans ce groupe.
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Section Coefficients -->
-            <div class="section">
-                <h2>Coefficients des Matières</h2>
-                <table class="coeff-table">
-                    <thead>
-                        <tr>
-                            <th>Matière</th>
-                            <th>Coefficient</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($coefficients as $coefficient): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($coefficient['titre_livrable'] ?? 'Non spécifié'); ?></td>
-                                <td><?= htmlspecialchars($coefficient['coefficient'] ?? 'Non spécifié'); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <?php
-    }
-
-    public function form_soumettre_rendu($livrable = null, $livrables = []) {
-        ?>
-        <style>
-            .form-container {
-                margin: 40px auto;
-                max-width: 600px;
-                padding: 30px;
-                background-color: #f7f9fc;
-                border-radius: 15px;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            }
-
-            .form-container h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-                color: #2c3e50;
-                text-align: center;
-            }
-
-            .form-group {
-                margin-bottom: 20px;
-            }
-
-            .form-group label {
-                display: block;
-                font-size: 16px;
-                margin-bottom: 5px;
-                color: #2c3e50;
-            }
-
-            .form-group input,
-            .form-group select {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                font-size: 14px;
-                color: #333;
-            }
-
-            .form-submit {
-                display: block;
-                width: 100%;
-                padding: 10px;
-                background-color: #4cd137;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-size: 16px;
-                cursor: pointer;
-            }
-
-            .form-submit:hover {
-                background-color: #44bd32;
-            }
-        </style>
-
-        <div class="form-container">
-            <h1>Soumettre un Rendu</h1>
-            <?php if ($livrable): ?>
-                <h2>Pour le Livrable : <?= htmlspecialchars($livrable['titre_livrable'] ?? 'Non défini'); ?></h2>  
-                <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description'] ?? 'Non défini'); ?></p>
-                <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient'] ?? 'Non défini'); ?></p>
-                <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite'] ?? 'Non défini'); ?></p>
-            <?php endif; ?>
-
-            <form action="index.php?module=etudiant&action=soumettre_rendu" method="POST" enctype="multipart/form-data">
-                <?php if (!$livrable): ?>
-                    <div class="form-group">
-                        <label for="livrable_id">Choisissez un Livrable :</label>
-                        <select id="livrable_id" name="livrable_id" required>
-                            <?php foreach ($livrables as $l): ?>
-                                <option value="<?= $l['id_livrable']; ?>"><?= htmlspecialchars($l['titre_livrable']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php else: ?>
-                    <input type="hidden" name="livrable_id" value="<?= $livrable['id_livrable'] ?? 'Non défini'; ?>">
-                <?php endif; ?>
-
-                <div class="form-group">
-                    <label for="fichier">Fichier :</label>
-                    <input type="file" id="fichier" name="fichier" required>
-                </div>
-                <button type="submit" class="form-submit">Soumettre</button>
-            </form>
-        </div>
-        <?php
-    }
-
-    public function details_livrable($livrable, $rendu, $evaluations, $feedbacks, $commentaires) {
-    ?>
-    <style>
-        .details-container {
-            margin: 40px auto;
-            max-width: 800px;
-            padding: 30px;
-            background-color: #f7f9fc;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .details-container h1, h2, h3 {
-            color: #2c3e50;
-        }
-
-        .details-container ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .details-container ul li {
-            margin-bottom: 10px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .form-group input[type="file"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .form-submit {
-            padding: 10px 20px;
-            background-color: #4cd137;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .form-submit:hover {
-            background-color: #44bd32;
-        }
-    </style>
-
-    <div class="details-container">
-        <h1>Détails du Livrable : <?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
-        <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description']); ?></p>
-        <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient']); ?></p>
-        <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite']); ?></p>
-
-        <h2>Votre Rendu</h2>
-        <?php if ($rendu): ?>
-            <p><a href="<?= htmlspecialchars($rendu['fichier']); ?>" target="_blank">Télécharger le rendu</a></p>
-            <form action="index.php?module=etudiant&action=modifier_rendu" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="livrable_id" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
-                <div class="form-group">
-                    <label for="nouveau_fichier">Modifier le Fichier :</label>
-                    <input type="file" id="nouveau_fichier" name="fichier" required>
-                </div>
-                <button type="submit" class="form-submit">Mettre à Jour</button>
-            </form>
-        <?php else: ?>
-            <p>Aucun rendu soumis pour ce livrable.</p>
-        <?php endif; ?>
-
-        <h2>Évaluations</h2>
-        <?php foreach ($evaluations as $evaluation): ?>
-            <h3>Évaluation : <?= htmlspecialchars($evaluation['type']); ?> (Note : <?= htmlspecialchars($evaluation['note']); ?>)</h3>
-            <ul>
-                <?php if (isset($commentaires[$evaluation['id_evaluation']])): ?>
-                    <?php foreach ($commentaires[$evaluation['id_evaluation']] as $commentaire): ?>
-                        <li><?php
-
-class VueEtudiant extends VueGenerique {
-    public function __construct() {
-        parent::__construct();
-    }
-
-    public function menu() {
-        ?>
-        <style>
-            .menu {
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                background-color: #2c3e50;
-                padding: 15px 20px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            .menu a {
-                color: white;
-                text-decoration: none;
-                font-weight: bold;
-                font-size: 18px;
-                transition: color 0.3s ease;
-            }
-
-            .menu a:hover {
-                color: #4cd137;
-            }
-
-            .menu a.active {
-                color: #4cd137;
-                border-bottom: 2px solid #4cd137;
-            }
-        </style>
-        <nav class="menu">
-            <a href="index.php?module=etudiant&action=dashboard" class="active">Tableau de Bord</a>
-            <a href="index.php?module=etudiant&action=form_soumettre_rendu">Soumettre un Rendu</a>
-            <a href="index.php?module=etudiant&action=consulter_feedbacks">Consulter les Feedbacks</a>
-        </nav>
-        <?php
-    }
-
-    public function dashboard($livrables, $groupe, $coefficients) {
-        ?>
-        <style>
-            /* Tableau de bord */
-            .dashboard-container {
-                margin: 20px auto;
-                max-width: 1200px;
-                padding: 30px;
-                background-color: #ffffff;
-                border-radius: 15px;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            }
-
-            .section {
-                margin-bottom: 40px;
-            }
-
-            .section h2 {
-                font-size: 24px;
-                margin-bottom: 15px;
-                color: #2c3e50;
-                border-bottom: 2px solid #f1f1f1;
-                padding-bottom: 5px;
-            }
-
-            .livrable-table, .group-table, .coeff-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-            }
-
-            .livrable-table th, .group-table th, .coeff-table th,
-            .livrable-table td, .group-table td, .coeff-table td {
-                padding: 15px;
-                text-align: left;
-                border: 1px solid #ddd;
-            }
-
-            .livrable-table th, .group-table th, .coeff-table th {
-                background-color: #4cd137;
-                color: white;
-            }
-
-            .livrable-table tr:nth-child(even),
-            .group-table tr:nth-child(even),
-            .coeff-table tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
-
-            .livrable-table tr:hover,
-            .group-table tr:hover,
-            .coeff-table tr:hover {
-                background-color: #f1f1f1;
-            }
-
-            .action-btn {
-                color: #3498db;
-                text-decoration: none;
-                font-weight: bold;
-                margin-right: 10px;
-                transition: color 0.3s ease;
-            }
-
-            .action-btn:hover {
-                color: #2980b9;
-            }
-        </style>
-
-        <div class="dashboard-container">
-            <!-- Section des livrables -->
-            <div class="section">
-                <h2>Mes Livrables</h2>
-                <table class="livrable-table">
-                    <thead>
-                        <tr>
-                            <th>Titre</th>
-                            <th>Date Limite</th>
-                            <th>Statut</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($livrables as $livrable): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($livrable['titre_livrable'] ?? 'N/A'); ?></td>
-                                <td><?= htmlspecialchars($livrable['date_limite'] ?? 'N/A'); ?></td>
-                                <td><?= htmlspecialchars($livrable['statut'] ?? 'Non spécifié'); ?></td>
-                                <td>
-                                    <a href="index.php?module=etudiant&action=form_soumettre_rendu&id=<?= $livrable['id_livrable']; ?>" class="action-btn">Soumettre</a>
-                                    <a href="index.php?module=etudiant&action=details_livrable&id=<?= $livrable['id_livrable']; ?>" class="action-btn">Détails</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Section Groupe -->
-            <div class="section">
-                <h2>Mon Groupe</h2>
-                <table class="group-table">
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Membres</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><?= htmlspecialchars($groupe['nom_groupe'] ?? 'Aucun groupe assigné'); ?></td>
-                            <td>
-                                <?php if (!empty($groupe['membres']) && is_array($groupe['membres'])): ?>
-                                    <?php foreach ($groupe['membres'] as $membre): ?>
-                                        <?= htmlspecialchars($membre); ?> <br>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    Aucun membre dans ce groupe.
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Section Coefficients -->
-            <div class="section">
-                <h2>Coefficients des Matières</h2>
-                <table class="coeff-table">
-                    <thead>
-                        <tr>
-                            <th>Matière</th>
-                            <th>Coefficient</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($coefficients as $coefficient): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($coefficient['titre_livrable'] ?? 'Non spécifié'); ?></td>
-                                <td><?= htmlspecialchars($coefficient['coefficient'] ?? 'Non spécifié'); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <?php
-    }
-
-    public function form_soumettre_rendu($livrable = null, $livrables = []) {
-        ?>
-        <style>
-            .form-container {
-                margin: 40px auto;
-                max-width: 600px;
-                padding: 30px;
-                background-color: #f7f9fc;
-                border-radius: 15px;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            }
-
-            .form-container h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-                color: #2c3e50;
-                text-align: center;
-            }
-
-            .form-group {
-                margin-bottom: 20px;
-            }
-
-            .form-group label {
-                display: block;
-                font-size: 16px;
-                margin-bottom: 5px;
-                color: #2c3e50;
-            }
-
-            .form-group input,
-            .form-group select {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                font-size: 14px;
-                color: #333;
-            }
-
-            .form-submit {
-                display: block;
-                width: 100%;
-                padding: 10px;
-                background-color: #4cd137;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-size: 16px;
-                cursor: pointer;
-            }
-
-            .form-submit:hover {
-                background-color: #44bd32;
-            }
-        </style>
-
-        <div class="form-container">
-            <h1>Soumettre un Rendu</h1>
-            <?php if ($livrable): ?>
-                <h2>Pour le Livrable : <?= htmlspecialchars($livrable['titre_livrable'] ?? 'Non défini'); ?></h2>  
-                <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description'] ?? 'Non défini'); ?></p>
-                <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient'] ?? 'Non défini'); ?></p>
-                <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite'] ?? 'Non défini'); ?></p>
-            <?php endif; ?>
-
-            <form action="index.php?module=etudiant&action=soumettre_rendu" method="POST" enctype="multipart/form-data">
-                <?php if (!$livrable): ?>
-                    <div class="form-group">
-                        <label for="livrable_id">Choisissez un Livrable :</label>
-                        <select id="livrable_id" name="livrable_id" required>
-                            <?php foreach ($livrables as $l): ?>
-                                <option value="<?= $l['id_livrable']; ?>"><?= htmlspecialchars($l['titre_livrable']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php else: ?>
-                    <input type="hidden" name="livrable_id" value="<?= $livrable['id_livrable'] ?? 'Non défini'; ?>">
-                <?php endif; ?>
-
-                <div class="form-group">
-                    <label for="fichier">Fichier :</label>
-                    <input type="file" id="fichier" name="fichier" required>
-                </div>
-                <button type="submit" class="form-submit">Soumettre</button>
-            </form>
-        </div>
-        <?php
-    }
-
-public function details_livrable($livrable, $rendu, $evaluations, $feedbacks, $commentaires) {
-    ?>
-    <style>
-        .details-container {
-            margin: 40px auto;
-            max-width: 800px;
-            padding: 30px;
-            background-color: #f7f9fc;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .details-container h1, h2, h3 {
-            color: #2c3e50;
-        }
-
-        .details-container ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .details-container ul li {
-            margin-bottom: 10px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .form-group input[type="file"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .form-submit {
-            padding: 10px 20px;
-            background-color: #4cd137;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .form-submit:hover {
-            background-color: #44bd32;
-        }
-    </style>
-
-    <div class="details-container">
-        <h1>Détails du Livrable : <?= htmlspecialchars($livrable['titre_livrable'] ?? 'Titre non disponible'); ?></h1>
-        <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description'] ?? 'Description non disponible'); ?></p>
-        <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient'] ?? 'Non défini'); ?></p>
-        <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite'] ?? 'Non définie'); ?></p>
-
-        <h2>Votre Rendu</h2>
-        <?php if ($rendu): ?>
-            <p>
-                <a href="<?= htmlspecialchars($rendu['fichier'] ?? '#'); ?>" target="_blank">
-                    Télécharger le rendu
-                </a>
-            </p>
-            <form action="index.php?module=etudiant&action=modifier_rendu" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="livrable_id" value="<?= htmlspecialchars($livrable['id_livrable'] ?? 0); ?>">
-                <div class="form-group">
-                    <label for="nouveau_fichier">Modifier le Fichier :</label>
-                    <input type="file" id="nouveau_fichier" name="fichier" required>
-                </div>
-                <button type="submit" class="form-submit">Mettre à Jour</button>
-            </form>
-        <?php else: ?>
-            <p>Aucun rendu soumis pour ce livrable.</p>
-        <?php endif; ?>
-
-        <h2>Évaluations</h2>
-        <?php if (!empty($evaluations)): ?>
-            <?php foreach ($evaluations as $evaluation): ?>
-                <?php
-                // Vérification des données d'évaluation
-                if (!is_array($evaluation) || !isset($evaluation['id_evaluation'])) {
-                    echo "<p>Erreur : Données d'évaluation mal formées ou ID d'évaluation manquant.</p>";
-                    continue; // Passe à l'élément suivant
-                }
-                ?>
-                <h3>
-                    <li>Note : <?= htmlspecialchars($evaluation['note'] ?? 'Non définie'); ?> 
-                        (<?= htmlspecialchars($evaluation['type'] ?? 'Type non défini'); ?>)
-                    </li>
-                </h3>
-                <ul>
-                    <?php if (!empty($commentaires[$evaluation['id_evaluation']] ?? [])): ?>
-                        <?php foreach ($commentaires[$evaluation['id_evaluation']] as $commentaire): ?>
-                            <li>
-                                <p><?= htmlspecialchars($commentaire['contenu'] ?? 'Commentaire non disponible'); ?></p>
-                                <small><?= htmlspecialchars($commentaire['date_commentaire'] ?? 'Date non définie'); ?></small>
-                            </li>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <li>Aucun commentaire pour cette évaluation.</li>
-                    <?php endif; ?>
-                </ul>
-                <form action="index.php?module=etudiant&action=ajouter_commentaire" method="POST">
-                    <input type="hidden" name="evaluation_id" value="<?= htmlspecialchars($evaluation['id_evaluation']); ?>">
-                    <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea>
-                    <button type="submit" class="form-submit">Ajouter</button>
-                </form>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>Aucune évaluation disponible pour ce livrable.</p>
-        <?php endif; ?>
-
-        <h2>Feedbacks</h2>
-        <ul>
-            <?php if (!empty($feedbacks)): ?>
-                <?php foreach ($feedbacks as $feedback): ?>
-                    <li>
-                        <?= htmlspecialchars($feedback['contenu'] ?? 'Feedback non disponible'); ?> 
-                        (<?= htmlspecialchars($feedback['date_feedback'] ?? 'Date non définie'); ?>)
-                    </li>
-                <?php endforeach; ?>
+            <h1>Bienvenue dans votre espace étudiant, <?= htmlspecialchars($etudiant['prenom'] . ' ' . $etudiant['nom']); ?></h1>
+            <h2>Projets :</h2>
+            <?php if (empty($projets)): ?>
+                <p>Aucun projet n'est disponible pour le moment.</p>
             <?php else: ?>
-                <p>Aucun feedback disponible pour ce livrable.</p>
+                <?php foreach ($projets as $projet): ?>
+                    <div class="projet-card">
+                        <h3><?= htmlspecialchars($projet['titre']); ?></h3>
+                        <p><?= htmlspecialchars($projet['description']); ?></p>
+                        <a href="index.php?module=etudiant&action=detail_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>">Voir les détails</a>
+                    </div>
+                <?php endforeach; ?>
             <?php endif; ?>
-        </ul>
-    </div>
+        </div>
+        <?php
+    }
+
+    public function afficher_detail_projet($projet, $livrables, $groupes, $groupe_etudiant) {
+        $this->menu();
+        ?>
+        <style>
+        .projet-detail-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .projet-detail-container h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-top: 30px;
+            color: #4cd137;
+            border-bottom: 2px solid #4cd137;
+            padding-bottom: 5px;
+        }
+
+        .livrable-table, .groupe-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .livrable-table th, .groupe-table th, .livrable-table td, .groupe-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .livrable-table th, .groupe-table th {
+            background-color: #4cd137;
+            color: white;
+        }
+
+        .livrable-table tr:nth-child(even), .groupe-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .livrable-table tr:hover, .groupe-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: white;
+            background-color: #3498db;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        </style>
+
+        <div class="projet-detail-container">
+            <h1><?= htmlspecialchars($projet['titre']); ?></h1>
+            <p><strong>Description :</strong> <?= htmlspecialchars($projet['description']); ?></p>
+            <p><strong>Semestre :</strong> <?= htmlspecialchars($projet['semestre']); ?></p>
+
+            <div>
+                <h2 class="section-title">Votre Groupe de Projet</h2>
+                <?php if ($groupe_etudiant): ?>
+                    <p>Vous êtes dans le groupe : <strong><?= htmlspecialchars($groupe_etudiant['nom_groupe']); ?></strong></p>
+                <?php else: ?>
+                    <p>Vous n'êtes pas encore assigné à un groupe.</p>
+                <?php endif; ?>
+            </div>
+
+            <div>
+                <h2 class="section-title">Livrables</h2>
+                <div class="filter-bar">
+                    <input type="text" id="search-livrable" placeholder="Rechercher un livrable..." onkeyup="filterLivrables()">
+                </div>
+                <table class="livrable-table" id="livrable-table">
+                    <thead>
+                        <tr>
+                            <th>Titre</th>
+                            <th>Date Limite</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($livrables as $livrable): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($livrable['titre_livrable']); ?></td>
+                                <td><?= htmlspecialchars($livrable['date_limite']); ?></td>
+                                <td>
+                                    <a href="index.php?module=etudiant&action=detail_livrable&id_livrable=<?= htmlspecialchars($livrable['id_livrable']); ?>" class="btn-primary">
+                                        Voir les détails
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            function filterLivrables() {
+                const input = document.getElementById("search-livrable");
+                const filter = input.value.toLowerCase();
+                const table = document.getElementById("livrable-table");
+                const rows = table.getElementsByTagName("tr");
+
+                for (let i = 1; i < rows.length; i++) {
+                    const titreCell = rows[i].getElementsByTagName("td")[0];
+                    if (titreCell) {
+                        const titre = titreCell.textContent || titreCell.innerText;
+                        rows[i].style.display = titre.toLowerCase().includes(filter) ? "" : "none";
+                    }
+                }
+            }
+        </script>
+        <?php
+    }
+
+    public function afficher_detail_livrable($livrable, $rendu) {
+        $this->menu();
+        ?>
+        <style>
+        .livrable-detail-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .livrable-detail-container h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .rendu-section {
+            margin-top: 30px;
+            border-top: 2px solid #4cd137;
+            padding-top: 15px;
+        }
+
+        .rendu-section form {
+            margin-top: 20px;
+        }
+
+        .btn-submit {
+            background-color: #4cd137; /* Vert d'origine */
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-submit:hover {
+            background-color: #44bd32; /* Légèrement plus foncé au survol */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-group button {
+            background-color: #4cd137;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #44bd32;
+        }
+        </style>
+
+            <div class="livrable-detail-container">
+            <h1>Détails du Livrable : <?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
+            <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description']); ?></p>
+            <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite']); ?></p>
+
+            <div class="rendu-section">
+            <h2>Votre Rendu</h2>
+            <?php if ($rendu): ?>
+                <p>
+                    <a href="<?= htmlspecialchars($rendu['fichier']); ?>" target="_blank" class="btn btn-modify">Télécharger le Rendu</a>
+                </p>
+                <form action="index.php?module=etudiant&action=modifier_rendu" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="livrable_id" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                    <div class="form-group">
+                        <label for="nouveaux_fichiers">Modifier les Fichiers :</label>
+                        <input type="file" id="nouveaux_fichiers" name="fichiers[]" multiple>
+                    </div>
+                    <button type="submit" class="form-group button">Mettre à Jour</button>
+                </form>
+                <form action="index.php?module=etudiant&action=supprimer_rendu" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce rendu ?');">
+                    <input type="hidden" name="livrable_id" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                    <button type="submit" class="btn btn-delete">Supprimer le Rendu</button>
+                </form>
+                <?php else: ?>
+                <p>Aucun rendu soumis pour ce livrable.</p>
+                <form action="index.php?module=etudiant&action=soumettre_rendu" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="livrable_id" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                    <div class="form-group">
+                        <label for="description">Description :</label>
+                        <textarea name="description" id="description" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="fichiers">Ajouter des Fichiers :</label>
+                        <input type="file" id="fichiers" name="fichiers[]" multiple required>
+                    </div class="form-group">
+                    <div >
+                        <p> Vous pouvez modifier ou supprimer le rendu qu'une fois existant.
+                    </div >
+                    <button type="submit" class="btn btn-submit">Soumettre</button>
+                </form>
+                <?php endif; ?>
+            </div>
+        </div>
     <?php
     }
 }
 
-                            <p><?= htmlspecialchars($commentaire['contenu']); ?></p>
-                            <small><?= htmlspecialchars($commentaire['date_commentaire']); ?></small>
-                        </li>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <li>Aucun commentaire pour cette évaluation.</li>
-                <?php endif; ?>
-            </ul>
-            <form action="index.php?module=etudiant&action=ajouter_commentaire" method="POST">
-                <input type="hidden" name="evaluation_id" value="<?= $evaluation['id_evaluation']; ?>">
-                <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea>
-                <button type="submit" class="form-submit">Ajouter</button>
-            </form>
-        <?php endforeach; ?>
-
-        <h2>Feedbacks</h2>
-        <ul>
-            <?php foreach ($feedbacks as $feedback): ?>
-                <li><?= htmlspecialchars($feedback['contenu']); ?> (<?= htmlspecialchars($feedback['date_feedback']); ?>)</li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-    <?php
-}
-
-}
+?>
