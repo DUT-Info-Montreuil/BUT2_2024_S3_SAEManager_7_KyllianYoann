@@ -1,0 +1,808 @@
+-- phpMyAdmin SQL Dump
+-- version 4.9.0.1
+-- https://www.phpmyadmin.net/
+--
+-- Hôte : sql200.infinityfree.com
+-- Généré le :  mer. 22 jan. 2025 à 18:07
+-- Version du serveur :  10.6.19-MariaDB
+-- Version de PHP :  7.2.22
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de données :  `if0_38080369_saemanager7`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Annee_Universitaire`
+--
+
+CREATE TABLE `Annee_Universitaire` (
+  `id_annee` int(11) NOT NULL,
+  `annee` varchar(50) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Annee_Universitaire`
+--
+
+INSERT INTO `Annee_Universitaire` (`id_annee`, `annee`) VALUES
+(1, '2023-2024'),
+(2, '2024-2025'),
+(3, '2022-2023'),
+(4, '2025-2026');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Commentaire`
+--
+
+CREATE TABLE `Commentaire` (
+  `id_commentaire` int(11) NOT NULL,
+  `contenu` text NOT NULL,
+  `date_commentaire` datetime DEFAULT current_timestamp(),
+  `evaluation_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Evaluation`
+--
+
+CREATE TABLE `Evaluation` (
+  `id_evaluation` int(11) NOT NULL,
+  `note` float NOT NULL,
+  `type` varchar(50) DEFAULT NULL,
+  `rendu_id` int(11) DEFAULT NULL,
+  `evaluateur_id` int(11) DEFAULT NULL,
+  `id_projet` int(11) NOT NULL,
+  `id_groupe` int(11) DEFAULT NULL,
+  `titre` varchar(255) NOT NULL,
+  `coefficient` decimal(5,2) DEFAULT 1.00,
+  `description` text DEFAULT NULL,
+  `date_creation` datetime DEFAULT current_timestamp()
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Feedback`
+--
+
+CREATE TABLE `Feedback` (
+  `id_feedback` int(11) NOT NULL,
+  `contenu` text NOT NULL,
+  `date_feedback` date NOT NULL,
+  `utilisateur_id` int(11) DEFAULT NULL,
+  `rendu_id` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Fichier`
+--
+
+CREATE TABLE `Fichier` (
+  `id_fichier` int(11) NOT NULL,
+  `nom_fichier` varchar(255) NOT NULL,
+  `chemin_fichier` varchar(255) NOT NULL,
+  `id_livrable` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Fichier`
+--
+
+INSERT INTO `Fichier` (`id_fichier`, `nom_fichier`, `chemin_fichier`, `id_livrable`) VALUES
+(1, 'Projet SAE Manager.pdf', 'uploads/livrables/679067ca2dcc3_Projet SAE Manager.pdf', 1),
+(2, 'Projet SAE Manager.pdf', 'uploads/livrables/679067f7101d6_Projet SAE Manager.pdf', 1),
+(3, 'Projet SAE Manager.pdf', 'uploads/livrables/67907174b2ada_Projet SAE Manager.pdf', 1),
+(4, 'Projet SAE Manager.pdf', 'uploads/livrables/679073aa8f35a_Projet SAE Manager.pdf', 1),
+(5, 'Projet SAE Manager.pdf', 'uploads/livrables/6790ca4329c94_Projet SAE Manager.pdf', 1),
+(6, 'Projet SAE Manager.pdf', 'uploads/livrables/6790d3dc2406f_Projet SAE Manager.pdf', 1),
+(7, 'Projet SAE Manager.pdf', 'uploads/livrables/6790d406dcabd_Projet SAE Manager.pdf', 1),
+(8, 'Projet SAE Manager.pdf', 'uploads/livrables/679107fde79cb_Projet SAE Manager.pdf', 1),
+(9, 'Projet SAE Manager.pdf', 'uploads/livrables/67911639cf3b3_Projet SAE Manager.pdf', 1),
+(10, 'fiche-revision-kyllian-simple-reseau (2).pdf', 'uploads/livrables/67911f450f653_fiche-revision-kyllian-simple-reseau (2).pdf', 1),
+(11, 'fiche-revision-kyllian-simple-reseau.pdf', 'uploads/livrables/679129ba16eb3_fiche-revision-kyllian-simple-reseau.pdf', 23),
+(12, 'fiche-revision-kyllian-simple-reseau.pdf', 'uploads/livrables/679129c27f631_fiche-revision-kyllian-simple-reseau.pdf', 24),
+(13, 'fiche-revision-kyllian-simple-reseau.pdf', 'uploads/livrables/679129d49195d_fiche-revision-kyllian-simple-reseau.pdf', 25),
+(14, 'Révisions (controle).pdf', 'uploads/livrables/67912a0029e76_Révisions (controle).pdf', 26),
+(15, 'if0_38080369_saemanager7.sql', 'uploads/livrables/6791347a1a076_if0_38080369_saemanager7.sql', 27),
+(18, '679129d49195d_fiche-revision-kyllian-simple-reseau (1).pdf', 'uploads/livrables/67913bfff105f_679129d49195d_fiche-revision-kyllian-simple-reseau (1).pdf', 28),
+(19, 'arithm_beamer_impression.pdf', 'uploads/livrables/67913d46ef64a_arithm_beamer_impression.pdf', 28);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Groupe`
+--
+
+CREATE TABLE `Groupe` (
+  `id_groupe` int(11) NOT NULL,
+  `nom_groupe` varchar(50) NOT NULL,
+  `projet_id` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Groupe`
+--
+
+INSERT INTO `Groupe` (`id_groupe`, `nom_groupe`, `projet_id`) VALUES
+(1, 'Groupe 5', 1),
+(2, 'Groupe 6', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Groupe_Utilisateur`
+--
+
+CREATE TABLE `Groupe_Utilisateur` (
+  `id` int(11) NOT NULL,
+  `utilisateur_id` int(11) DEFAULT NULL,
+  `groupe_id` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Groupe_Utilisateur`
+--
+
+INSERT INTO `Groupe_Utilisateur` (`id`, `utilisateur_id`, `groupe_id`) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 3, 2),
+(4, 4, 2),
+(5, 5, 1),
+(6, 6, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Livrable`
+--
+
+CREATE TABLE `Livrable` (
+  `id_livrable` int(11) NOT NULL,
+  `titre_livrable` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `date_limite` date NOT NULL,
+  `coefficient` int(11) NOT NULL,
+  `projet_id` int(11) DEFAULT NULL,
+  `isIndividuel` tinyint(1) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Livrable`
+--
+
+INSERT INTO `Livrable` (`id_livrable`, `titre_livrable`, `description`, `date_limite`, `coefficient`, `projet_id`, `isIndividuel`) VALUES
+(1, 'Rapport Initial', 'Description du projet et objectifs', '2024-01-15', 20, 1, 0),
+(2, 'Prototype Fonctionnel', 'Développement d\'un prototype opérationnel', '2024-03-01', 30, 1, 0),
+(3, 'Présentation Finale', 'Présentation des résultats obtenus', '2024-05-20', 50, 1, 0),
+(4, 'Rapport Exploratoire', 'Analyse des données initiales', '2024-02-01', 25, 2, 0),
+(5, 'Modèle Final', 'Livraison du modèle entraîné et documenté', '2024-04-15', 35, 3, 0),
+(6, 'Cours de Cryptographie', 'Cryptographie analyser les cryptomonnaies', '2025-01-31', 12, NULL, 0),
+(7, 'AAA', 'BBB', '7766-01-01', 1, NULL, 1),
+(8, 'Le pouvoir des habitudes', 'Contenu du livrable descritpion', '2025-01-25', 12, NULL, 0),
+(9, 'test', 'test', '2025-01-18', 12, NULL, 0),
+(10, 'Testingggg', 'Description testing', '2025-01-31', 12, NULL, 1),
+(11, 'fssfsfs', 'fsdf', '2025-01-31', 12, NULL, 1),
+(12, 'dqdqd', 'qdqdqdq', '2025-01-31', 12, NULL, 0),
+(13, 'Le pouvoir des habitudesddd', 'ddddd', '2025-02-07', 45, NULL, 1),
+(14, 'Livrable 1', 'Description 1', '2025-01-31', 2, 1, 1),
+(15, 'Livrable 2', 'Description 2', '2025-02-15', 3, 1, 0),
+(16, 'Livrable 3', 'Description 3', '2025-03-10', 1, 2, 1),
+(20, 'Fichier piece jointe', 'fichier avec', '2025-01-31', 1, 7, 1),
+(19, 'projet2 tab', 'projet2 tab', '2025-01-24', 15, 7, 1),
+(21, '5emprok', 'dqdqdqd', '2025-01-26', 15, 10, 0),
+(22, 'TestFichier10', 'id fichier 10 test', '2025-01-30', 12, 10, 0),
+(27, 'AjoutFichierModifForm', 'AjoutFichierModifForm', '2025-02-05', 1, 10, 1),
+(25, 'ProQLDQLJQSJ', 'QDHQSJDHQJ', '2025-01-24', 14, 10, 0),
+(28, 'KyllianLeBoss', 'KyllianLeBoss', '2025-01-30', 40, 10, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Projet`
+--
+
+CREATE TABLE `Projet` (
+  `id_projet` int(11) NOT NULL,
+  `titre` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `semestre` int(11) NOT NULL,
+  `responsable_id` int(11) DEFAULT NULL,
+  `annee_universitaire_id` int(11) DEFAULT NULL,
+  `id_promo` int(11) DEFAULT NULL,
+  `coefficient` decimal(10,2) DEFAULT 0.00
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Projet`
+--
+
+INSERT INTO `Projet` (`id_projet`, `titre`, `description`, `semestre`, `responsable_id`, `annee_universitaire_id`, `id_promo`, `coefficient`) VALUES
+(10, '5emprok', 'testtt', 4, NULL, NULL, NULL, '12.00'),
+(4, 'Projet Consignes', 'Consignes de Projet ', 3, NULL, NULL, 1, '12.00'),
+(9, '2eme po', 'ro', 3, NULL, NULL, NULL, '12.00'),
+(7, 'Projet Hard', 'proj test', 3, NULL, NULL, NULL, '12.00');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Projet_Promotion`
+--
+
+CREATE TABLE `Projet_Promotion` (
+  `id_projet` int(11) NOT NULL,
+  `id_promo` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Projet_Promotion`
+--
+
+INSERT INTO `Projet_Promotion` (`id_projet`, `id_promo`) VALUES
+(1, 1),
+(1, 2),
+(2, 1),
+(4, 1),
+(4, 2),
+(5, 1),
+(5, 2),
+(5, 3),
+(5, 4),
+(5, 5),
+(5, 6),
+(5, 7),
+(5, 8),
+(5, 9),
+(5, 10),
+(5, 11),
+(5, 12),
+(5, 13),
+(5, 14),
+(5, 15),
+(5, 16),
+(5, 17),
+(5, 18),
+(5, 19),
+(5, 20),
+(5, 21),
+(5, 22),
+(5, 23),
+(5, 24),
+(5, 25),
+(5, 26),
+(6, 1),
+(6, 2),
+(7, 3),
+(7, 4),
+(9, 1),
+(9, 2),
+(10, 1),
+(10, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Promo`
+--
+
+CREATE TABLE `Promo` (
+  `id_promo` int(11) NOT NULL,
+  `nom_promo` varchar(50) NOT NULL,
+  `annee_universitaire_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Promo`
+--
+
+INSERT INTO `Promo` (`id_promo`, `nom_promo`, `annee_universitaire_id`) VALUES
+(1, 'BUT1 Informatique Groupe A', 1),
+(2, 'BUT1 Informatique Groupe B', 1),
+(3, 'BUT2 Informatique Groupe A', 1),
+(4, 'BUT2 Informatique Groupe B', 1),
+(5, 'BUT3 Informatique Groupe A', 1),
+(6, 'BUT3 Informatique Groupe B', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Promotion_Utilisateur`
+--
+
+CREATE TABLE `Promotion_Utilisateur` (
+  `id` int(11) NOT NULL,
+  `id_promo` int(11) NOT NULL,
+  `id_utilisateur` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Promotion_Utilisateur`
+--
+
+INSERT INTO `Promotion_Utilisateur` (`id`, `id_promo`, `id_utilisateur`) VALUES
+(1, 2, 1),
+(2, 2, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Promo_Membres`
+--
+
+CREATE TABLE `Promo_Membres` (
+  `id` int(11) NOT NULL,
+  `id_promo` int(11) NOT NULL,
+  `utilisateur_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Promo_Membres`
+--
+
+INSERT INTO `Promo_Membres` (`id`, `id_promo`, `utilisateur_id`) VALUES
+(1, 1, 1),
+(2, 1, 2),
+(3, 1, 3),
+(4, 1, 4),
+(5, 2, 5),
+(6, 2, 6),
+(7, 2, 7),
+(8, 2, 8),
+(9, 3, 9),
+(10, 3, 10),
+(11, 3, 11),
+(12, 3, 12),
+(13, 4, 13),
+(14, 4, 14),
+(15, 4, 15),
+(16, 4, 16),
+(17, 6, 17),
+(18, 6, 18),
+(19, 6, 19),
+(20, 6, 20),
+(21, 1, 21),
+(22, 2, 22),
+(23, 3, 23),
+(24, 4, 24);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Rendu`
+--
+
+CREATE TABLE `Rendu` (
+  `id_rendu` int(11) NOT NULL,
+  `titre_rendu` varchar(100) NOT NULL,
+  `fichier` varchar(255) DEFAULT NULL,
+  `date_soumission` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `statut` enum('a_venir','soumis','en_retard') NOT NULL,
+  `utilisateur_id` int(11) DEFAULT NULL,
+  `livrable_id` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Rendu`
+--
+
+INSERT INTO `Rendu` (`id_rendu`, `titre_rendu`, `fichier`, `date_soumission`, `statut`, `utilisateur_id`, `livrable_id`) VALUES
+(1, 'Rapport Groupe A', 'rapport_groupe_a.pdf', '2024-01-14 22:00:00', 'soumis', 1, 1),
+(2, 'Prototype Web', 'prototype_groupe_a.zip', '2024-02-28 18:00:00', 'soumis', 2, 2),
+(3, 'Rapport Groupe B', 'rapport_groupe_b.pdf', '2024-01-15 00:00:00', 'soumis', 3, 4),
+(4, 'Modèle Groupe B', 'modele_groupe_b.ml', '2024-04-15 01:00:00', 'soumis', 4, 5),
+(5, '1', 'Array', '2025-01-14 23:46:00', 'soumis', 1, 1),
+(6, 'Rendu sans titre', 'uploads/DM N°6 SUJET.docx', '2025-01-14 23:57:02', 'soumis', 1, 1),
+(7, 'Rendu sans titre', 'uploads/MultipleDeDeuxTroisCinq.java', '2025-01-15 00:10:59', 'soumis', 11, 1),
+(8, 'Rendu sans titre', 'uploads/Capture d’écran du 2025-01-09 13-13-25.png', '2025-01-15 10:56:45', 'soumis', 1, 1),
+(9, 'Rendu sans titre', 'uploads/Capture d’écran du 2025-01-09 12-50-04.png', '2025-01-15 11:02:41', 'soumis', 1, 1),
+(10, 'Rendu sans titre', 'uploads/token git sae', '2025-01-15 11:04:04', 'soumis', 1, 1),
+(11, 'Rendu sans titre', 'uploads/token git sae', '2025-01-15 11:07:08', 'soumis', 1, 1),
+(12, 'Rendu sans titre', 'uploads/bbab489.pdf', '2025-01-21 14:45:20', 'soumis', 2, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Responsable_Projet`
+--
+
+CREATE TABLE `Responsable_Projet` (
+  `id` int(11) NOT NULL,
+  `id_projet` int(11) DEFAULT NULL,
+  `id_professeur` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Responsable_Projet`
+--
+
+INSERT INTO `Responsable_Projet` (`id`, `id_projet`, `id_professeur`) VALUES
+(39, 7, 9),
+(19, 6, 9),
+(18, 6, 8),
+(17, 6, 7),
+(16, 4, 0),
+(15, 4, 0),
+(8, 5, 7),
+(9, 5, 8),
+(10, 5, 9),
+(11, 5, 33),
+(12, 5, 34),
+(13, 5, 35),
+(14, 5, 36),
+(38, 7, 8),
+(37, 7, 7),
+(31, 9, 7),
+(32, 9, 8),
+(33, 9, 9),
+(34, 10, 7),
+(35, 10, 8),
+(36, 10, 9);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Ressource`
+--
+
+CREATE TABLE `Ressource` (
+  `id_ressource` int(11) NOT NULL,
+  `titre` varchar(100) NOT NULL,
+  `type` enum('document','lien','video') NOT NULL,
+  `lien` varchar(255) DEFAULT NULL,
+  `projet_id` int(11) DEFAULT NULL,
+  `mise_en_avant` tinyint(1) DEFAULT 0
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Ressource`
+--
+
+INSERT INTO `Ressource` (`id_ressource`, `titre`, `type`, `lien`, `projet_id`, `mise_en_avant`) VALUES
+(1, 'Guide HTML/CSS', 'document', 'http://example.com/guide-html-css.pdf', 1, 1),
+(2, 'Tutoriel Python', 'document', 'http://example.com/python-tutorial.pdf', 2, 1),
+(3, 'Dataset Public', 'lien', 'http://example.com/dataset.csv', 2, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Soutenance`
+--
+
+CREATE TABLE `Soutenance` (
+  `id_soutenance` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `description` text DEFAULT NULL,
+  `projet_id` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Soutenance`
+--
+
+INSERT INTO `Soutenance` (`id_soutenance`, `date`, `description`, `projet_id`) VALUES
+(1, '2024-06-01', 'Soutenance finale pour le projet Web', 1),
+(2, '2024-06-10', 'Soutenance finale pour le projet Data Science', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `Utilisateur`
+--
+
+CREATE TABLE `Utilisateur` (
+  `id_utilisateur` int(11) NOT NULL,
+  `nom` varchar(50) NOT NULL,
+  `prenom` varchar(50) NOT NULL,
+  `login` varchar(100) NOT NULL,
+  `mdp` varchar(255) NOT NULL,
+  `role` enum('etudiant','professeur','admin') NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Déchargement des données de la table `Utilisateur`
+--
+
+INSERT INTO `Utilisateur` (`id_utilisateur`, `nom`, `prenom`, `login`, `mdp`, `role`) VALUES
+(1, 'Lucas', 'Hauchard', 'lucashauchard', '$2y$10$/lELdsAId.Z/jcJFDu7IQORLmMe0R0DzXfhfVjjXjsFAQcEYtSgi6', 'etudiant'),
+(2, 'Issa', 'Doumbia', 'issadoumbia', '$2y$10$U.AvyRMl7.kjs.lGoicHIeeM08jq4RwhKuhzu2vbmmY3FAmDRgXQ2', 'etudiant'),
+(3, 'Marie', 'Dupont', 'mariedupont', '$2y$10$KwuXV8wBa2Bxye9Uw.QI/Okdj5onfKeTtZQEelVu4MrW3HtAKfgnu', 'etudiant'),
+(6, 'Paul', 'Lemoine', 'paullemoine', '$2y$10$//Vfi8p4iCFkudUNnXpJP.pn7iFlV9jEUpIs8oNjykKBdc1gIVtGq', 'etudiant'),
+(7, 'Will', 'Smith', 'willsmith', '$2y$10$moguLwJukXpfZPx4us8k7esG06vf9B7aph.UbZTIELqHaD1zokJty', 'professeur'),
+(8, 'Sarah', 'Johnson', 'sarahjohnson', '$2y$10$NKoHogzEKAzXPRKfFdjCT.3ei8TLjZNAt8nK1Zj8cLtLv1.Sj.iVC', 'professeur'),
+(9, 'David', 'Brown', 'davidbrown', '$2y$10$BkRFTc7Pi3qBWCdjB/eITuZQCAER.6pnqmUQ3M/bMtCDB5ZAiHnEi', 'professeur'),
+(10, 'Admin', 'Kyllian', 'kyllianadmin', '$2y$10$fiTSA42Eo6dJdXrX5V0fR./h2yMofEZh/12FiSlTAu0V9xt2L68OC', 'admin'),
+(11, 'Admin', 'Yoann', 'yoannadmin', '$2y$10$fiTSA42Eo6dJdXrX5V0fR./h2yMofEZh/12FiSlTAu0V9xt2L68OC', 'admin'),
+(13, 'Dupont', 'Alice', 'alice.dupont', 'password123', 'etudiant'),
+(14, 'Martin', 'Bob', 'bob.martin', 'password123', 'etudiant'),
+(15, 'Petit', 'Claire', 'claire.petit', 'password123', 'etudiant'),
+(16, 'Bernard', 'David', 'david.bernard', 'password123', 'etudiant'),
+(17, 'Lemoine', 'Emma', 'emma.lemoine', 'password123', 'etudiant'),
+(18, 'Durand', 'François', 'francois.durand', 'password123', 'etudiant'),
+(19, 'Blanc', 'Gilles', 'gilles.blanc', 'password123', 'etudiant'),
+(20, 'Noir', 'Hélène', 'helene.noir', 'password123', 'etudiant'),
+(21, 'Verdi', 'Ines', 'ines.verdi', 'password123', 'etudiant'),
+(22, 'Rossi', 'Julien', 'julien.rossi', 'password123', 'etudiant'),
+(23, 'Brun', 'Karim', 'karim.brun', 'password123', 'etudiant'),
+(24, 'Gris', 'Laura', 'laura.gris', 'password123', 'etudiant'),
+(25, 'Fischer', 'Manon', 'manon.fischer', 'password123', 'etudiant'),
+(26, 'Klein', 'Nicolas', 'nicolas.klein', 'password123', 'etudiant'),
+(28, 'Müller', 'Pauline', 'pauline.muller', 'password123', 'etudiant'),
+(29, 'Schmidt', 'Quentin', 'quentin.schmidt', 'password123', 'etudiant'),
+(30, 'Richter', 'Romain', 'romain.richter', 'password123', 'etudiant'),
+(31, 'Hahn', 'Sophie', 'sophie.hahn', 'password123', 'etudiant'),
+(32, 'Lang', 'Thomas', 'thomas.lang', 'password123', 'etudiant'),
+(34, 'Turing', 'Alan', 'alan.turing', 'password123', 'professeur'),
+(35, 'Lovelace', 'Ada', 'ada.lovelace', 'password123', 'professeur'),
+(36, 'Hopper', 'Grace', 'grace.hopper', 'password123', 'professeur');
+
+--
+-- Index pour les tables déchargées
+--
+
+--
+-- Index pour la table `Annee_Universitaire`
+--
+ALTER TABLE `Annee_Universitaire`
+  ADD PRIMARY KEY (`id_annee`),
+  ADD UNIQUE KEY `annee` (`annee`);
+
+--
+-- Index pour la table `Commentaire`
+--
+ALTER TABLE `Commentaire`
+  ADD PRIMARY KEY (`id_commentaire`),
+  ADD KEY `evaluation_id` (`evaluation_id`);
+
+--
+-- Index pour la table `Evaluation`
+--
+ALTER TABLE `Evaluation`
+  ADD PRIMARY KEY (`id_evaluation`),
+  ADD KEY `id_projet` (`id_projet`),
+  ADD KEY `id_groupe` (`id_groupe`),
+  ADD KEY `rendu_id` (`rendu_id`),
+  ADD KEY `evaluateur_id` (`evaluateur_id`);
+
+--
+-- Index pour la table `Feedback`
+--
+ALTER TABLE `Feedback`
+  ADD PRIMARY KEY (`id_feedback`),
+  ADD KEY `utilisateur_id` (`utilisateur_id`),
+  ADD KEY `rendu_id` (`rendu_id`);
+
+--
+-- Index pour la table `Fichier`
+--
+ALTER TABLE `Fichier`
+  ADD PRIMARY KEY (`id_fichier`),
+  ADD KEY `id_livrable` (`id_livrable`);
+
+--
+-- Index pour la table `Groupe`
+--
+ALTER TABLE `Groupe`
+  ADD PRIMARY KEY (`id_groupe`),
+  ADD UNIQUE KEY `unique_nom_projet` (`nom_groupe`,`projet_id`),
+  ADD KEY `projet_id` (`projet_id`);
+
+--
+-- Index pour la table `Groupe_Utilisateur`
+--
+ALTER TABLE `Groupe_Utilisateur`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_utilisateur_id` (`utilisateur_id`),
+  ADD KEY `idx_groupe_id` (`groupe_id`);
+
+--
+-- Index pour la table `Livrable`
+--
+ALTER TABLE `Livrable`
+  ADD PRIMARY KEY (`id_livrable`),
+  ADD KEY `projet_id` (`projet_id`);
+
+--
+-- Index pour la table `Projet`
+--
+ALTER TABLE `Projet`
+  ADD PRIMARY KEY (`id_projet`),
+  ADD KEY `responsable_id` (`responsable_id`),
+  ADD KEY `annee_universitaire_id` (`annee_universitaire_id`),
+  ADD KEY `id_promo` (`id_promo`);
+
+--
+-- Index pour la table `Projet_Promotion`
+--
+ALTER TABLE `Projet_Promotion`
+  ADD PRIMARY KEY (`id_projet`,`id_promo`),
+  ADD KEY `id_promo` (`id_promo`);
+
+--
+-- Index pour la table `Promo`
+--
+ALTER TABLE `Promo`
+  ADD PRIMARY KEY (`id_promo`),
+  ADD KEY `annee_universitaire_id` (`annee_universitaire_id`);
+
+--
+-- Index pour la table `Promotion_Utilisateur`
+--
+ALTER TABLE `Promotion_Utilisateur`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_promo` (`id_promo`),
+  ADD KEY `id_utilisateur` (`id_utilisateur`);
+
+--
+-- Index pour la table `Promo_Membres`
+--
+ALTER TABLE `Promo_Membres`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_promo` (`id_promo`),
+  ADD KEY `idx_utilisateur` (`utilisateur_id`);
+
+--
+-- Index pour la table `Rendu`
+--
+ALTER TABLE `Rendu`
+  ADD PRIMARY KEY (`id_rendu`),
+  ADD KEY `utilisateur_id` (`utilisateur_id`),
+  ADD KEY `livrable_id` (`livrable_id`);
+
+--
+-- Index pour la table `Responsable_Projet`
+--
+ALTER TABLE `Responsable_Projet`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_projet` (`id_projet`),
+  ADD KEY `id_professeur` (`id_professeur`);
+
+--
+-- Index pour la table `Ressource`
+--
+ALTER TABLE `Ressource`
+  ADD PRIMARY KEY (`id_ressource`),
+  ADD KEY `projet_id` (`projet_id`);
+
+--
+-- Index pour la table `Soutenance`
+--
+ALTER TABLE `Soutenance`
+  ADD PRIMARY KEY (`id_soutenance`),
+  ADD KEY `projet_id` (`projet_id`);
+
+--
+-- Index pour la table `Utilisateur`
+--
+ALTER TABLE `Utilisateur`
+  ADD PRIMARY KEY (`id_utilisateur`),
+  ADD UNIQUE KEY `login` (`login`);
+
+--
+-- AUTO_INCREMENT pour les tables déchargées
+--
+
+--
+-- AUTO_INCREMENT pour la table `Annee_Universitaire`
+--
+ALTER TABLE `Annee_Universitaire`
+  MODIFY `id_annee` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT pour la table `Commentaire`
+--
+ALTER TABLE `Commentaire`
+  MODIFY `id_commentaire` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `Evaluation`
+--
+ALTER TABLE `Evaluation`
+  MODIFY `id_evaluation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT pour la table `Feedback`
+--
+ALTER TABLE `Feedback`
+  MODIFY `id_feedback` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT pour la table `Fichier`
+--
+ALTER TABLE `Fichier`
+  MODIFY `id_fichier` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT pour la table `Groupe`
+--
+ALTER TABLE `Groupe`
+  MODIFY `id_groupe` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT pour la table `Groupe_Utilisateur`
+--
+ALTER TABLE `Groupe_Utilisateur`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT pour la table `Livrable`
+--
+ALTER TABLE `Livrable`
+  MODIFY `id_livrable` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+--
+-- AUTO_INCREMENT pour la table `Projet`
+--
+ALTER TABLE `Projet`
+  MODIFY `id_projet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT pour la table `Promo`
+--
+ALTER TABLE `Promo`
+  MODIFY `id_promo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+
+--
+-- AUTO_INCREMENT pour la table `Promotion_Utilisateur`
+--
+ALTER TABLE `Promotion_Utilisateur`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT pour la table `Promo_Membres`
+--
+ALTER TABLE `Promo_Membres`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT pour la table `Rendu`
+--
+ALTER TABLE `Rendu`
+  MODIFY `id_rendu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT pour la table `Responsable_Projet`
+--
+ALTER TABLE `Responsable_Projet`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+
+--
+-- AUTO_INCREMENT pour la table `Ressource`
+--
+ALTER TABLE `Ressource`
+  MODIFY `id_ressource` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT pour la table `Soutenance`
+--
+ALTER TABLE `Soutenance`
+  MODIFY `id_soutenance` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT pour la table `Utilisateur`
+--
+ALTER TABLE `Utilisateur`
+  MODIFY `id_utilisateur` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
