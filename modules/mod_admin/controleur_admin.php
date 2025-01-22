@@ -37,8 +37,11 @@ class ControleurAdmin {
             case "liste_utilisateurs":
                 $this->liste_utilisateurs();
                 break;
+            case 'modifier_promo_utilisateur':
+                $this->modifier_promo_utilisateur();
+                break;
             default:
-                die("Action inexistante");
+                die("Action inexistante : " . htmlspecialchars($this->action));
         }
     }
 
@@ -81,6 +84,24 @@ class ControleurAdmin {
         }
     }
 
+    public function mettre_a_jour_promo_utilisateur() {
+        if (isset($_POST['id_utilisateur']) && isset($_POST['id_promo'])) {
+            $id_utilisateur = intval($_POST['id_utilisateur']);
+            $id_promo = intval($_POST['id_promo']);
+            $this->modele->attribuer_promo_utilisateur($id_utilisateur, $id_promo);
+            $_SESSION['success'] = "Promotion mise à jour avec succès.";
+        } else {
+            $_SESSION['error'] = "Données manquantes pour mettre à jour la promotion.";
+        }
+        header("Location: index.php?module=admin&action=liste_utilisateurs");
+    }
+
+    public function attribuer_promo_utilisateur($id_utilisateur, $id_promo) {
+        $sql = "REPLACE INTO promotion_utilisateur (id_utilisateur, id_promo) VALUES (:id_utilisateur, :id_promo)";
+        $req = $this->db->prepare($sql);
+        $req->execute(['id_utilisateur' => $id_utilisateur, 'id_promo' => $id_promo]);
+    }
+
     private function form_modifier_utilisateur() {
     $id_utilisateur = isset($_GET["id"]) ? $_GET["id"] : die("Paramètre id manquant");
     $utilisateur = $this->modele->get_utilisateur($id_utilisateur);
@@ -110,10 +131,39 @@ class ControleurAdmin {
         }
     }
 
-
     private function liste_utilisateurs() {
-        $utilisateurs = $this->modele->get_utilisateurs();
         $this->vue->menu();
-        $this->vue->liste_utilisateurs($utilisateurs);
+        $utilisateurs = $this->modele->get_utilisateurs();
+        $promos = $this->modele->get_promos();  
+        $this->vue->liste_utilisateurs($utilisateurs, $promos);
     }
+
+    public function modifier_promo_utilisateur() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $id_utilisateur = $_POST['id_utilisateur'] ?? null;
+        $id_promo = $_POST['id_promo'] ?? null;
+
+        if ($id_utilisateur && $id_promo !== null) {
+            $resultat = $this->modele->modifier_promo_utilisateur($id_utilisateur, $id_promo);
+            if ($resultat) {
+                $_SESSION['success'] = "Promotion mise à jour avec succès.";
+            } else {
+                $_SESSION['error'] = "Erreur lors de la mise à jour de la promotion.";
+            }
+        } else {
+            $_SESSION['error'] = "Données manquantes pour mettre à jour la promotion.";
+        }
+        }
+
+        // Redirection après la mise à jour
+        header("Location: index.php?module=admin&action=liste_utilisateurs");
+        exit();
+    }
+
+    public function gestion_utilisateurs() {
+        $utilisateurs = $this->modele->get_utilisateurs_avec_promo();
+        $promos = $this->modele->get_promos();
+        $this->vue->afficher_utilisateurs($utilisateurs, $promos);
+    }
+
 }
