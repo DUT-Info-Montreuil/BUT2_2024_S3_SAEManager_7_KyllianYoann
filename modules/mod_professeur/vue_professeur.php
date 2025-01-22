@@ -295,6 +295,14 @@ class VueProfesseur extends VueGenerique {
                     <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" required>
                 </div>
                 <button type="submit" class="form-submit">Créer le Livrable</button>
+                 <div class="form-group">
+                <input type="radio" id="True" name="isIndividuel" value="True">
+                <label for="True">Individuel</label>
+
+                <input type="radio" id="False" name="isIndividuel" value="False">
+                <label for="False">Groupe</label>
+                </div>
+                <button type="submit" class="form-submit">Créer le Livrable</button>
             </form>
         </div>
         <?php
