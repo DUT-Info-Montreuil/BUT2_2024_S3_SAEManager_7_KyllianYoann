@@ -144,91 +144,119 @@ class VueAdmin extends VueGenerique {
         <?php
     }
 
-    public function liste_utilisateurs($utilisateurs) {
+    public function liste_utilisateurs($utilisateurs, $promos) {
         ?>
         <style>
-            .table-container {
-                margin: 20px auto;
-                max-width: 1000px;
-                padding: 30px;
-                background: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
+        .table-container {
+            margin: 20px auto;
+            max-width: 1000px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-            .table-container h2 {
-                font-size: 22px;
-                margin-bottom: 20px;
-                color: #2c3e50;
-                border-bottom: 2px solid #f1f1f1;
-                padding-bottom: 5px;
-            }
+        .table-container h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #f1f1f1;
+            padding-bottom: 5px;
+        }
 
-            .table {
-                width: 100%;
-                border-collapse: collapse;
-            }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-            .table th,
-            .table td {
-                padding: 15px;
-                text-align: left;
-                border: 1px solid #ddd;
-            }
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
 
-            .table th {
-                background-color: #4cd137;
-                color: white;
-            }
+        .table th {
+            background-color: #4cd137;
+            color: white;
+        }
 
-            .table tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
 
-            .table tr:hover {
-                background-color: #f1f1f1;
-            }
+        .table tr:hover {
+            background-color: #f1f1f1;
+        }
 
-            .action-btn {
-                color: #3498db;
-                text-decoration: none;
-                font-weight: bold;
-            }
+        .action-btn {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-            .action-btn:hover {
-                color: #2980b9;
-            }
+        .action-btn:hover {
+            color: #2980b9;
+        }
+
+        .promo-form select {
+            margin-right: 10px;
+        }
         </style>
         <div class="table-container">
-            <h2>Liste des Utilisateurs</h2>
-            <table class="table">
-                <thead>
+        <h2>Liste des Utilisateurs</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Login</th>
+                    <th>Rôle</th>
+                    <th>Promotion</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($utilisateurs as $utilisateur): ?>
                     <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Login</th>
-                        <th>Rôle</th>
-                        <th>Actions</th>
+                        <td><?= htmlspecialchars($utilisateur['id_utilisateur']); ?></td>
+                        <td><?= htmlspecialchars($utilisateur['nom']); ?></td>
+                        <td><?= htmlspecialchars($utilisateur['prenom']); ?></td>
+                        <td><?= htmlspecialchars($utilisateur['login']); ?></td>
+                        <td><?= htmlspecialchars($utilisateur['role']); ?></td>
+                        <td>
+                            <?php if ($utilisateur['role'] === 'etudiant'): ?>
+                                <form method="POST" action="index.php?module=admin&action=modifier_promo_utilisateur" class="promo-form">
+                                    <select name="id_promo">
+                                        <option value="">Aucune promo</option>
+                                        <?php foreach ($promos as $promo): ?>
+                                            <option value="<?= htmlspecialchars($promo['id_promo']); ?>"
+                                                <?= isset($utilisateur['id_promo']) && $utilisateur['id_promo'] == $promo['id_promo'] ? 'selected' : ''; ?>>
+                                                <?= htmlspecialchars($promo['nom_promo']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <input type="hidden" name="id_utilisateur" value="<?= htmlspecialchars($utilisateur['id_utilisateur']); ?>">
+                                    <button type="submit">Mettre à jour</button>
+                                </form>
+                            <?php else: ?>
+                                N/A
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="index.php?module=admin&action=form_modifier_utilisateur&id=<?= $utilisateur['id_utilisateur']; ?>" class="action-btn">Modifier</a>
+                            <a href="index.php?module=admin&action=supprimer_utilisateur&id=<?= $utilisateur['id_utilisateur']; ?>" class="action-btn" 
+                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">Supprimer</a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($utilisateurs as $utilisateur): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($utilisateur['nom']); ?></td>
-                            <td><?= htmlspecialchars($utilisateur['prenom']); ?></td>
-                            <td><?= htmlspecialchars($utilisateur['login']); ?></td>
-                            <td><?= htmlspecialchars($utilisateur['role']); ?></td>
-                            <td>
-                                <a href="index.php?module=admin&action=form_modifier_utilisateur&id=<?= $utilisateur['id_utilisateur']; ?>" class="action-btn">Modifier</a>
-                                <a href="index.php?module=admin&action=supprimer_utilisateur&id=<?= $utilisateur['id_utilisateur']; ?>" class="action-btn">Supprimer</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
         </div>
         <?php
     }
+
 
     public function form_creer_utilisateur() {
         ?>
