@@ -130,7 +130,7 @@ class VueEtudiant extends VueGenerique {
         <?php
     }
 
-    public function afficher_detail_projet($projet, $livrables, $groupes, $groupe_etudiant) {
+    public function afficher_detail_projet($projet, $livrables, $groupes, $groupe_etudiant, $promotions, $responsables) {
         $this->menu();
         ?>
         <style>
@@ -203,6 +203,33 @@ class VueEtudiant extends VueGenerique {
             <h1><?= htmlspecialchars($projet['titre']); ?></h1>
             <p><strong>Description :</strong> <?= htmlspecialchars($projet['description']); ?></p>
             <p><strong>Semestre :</strong> <?= htmlspecialchars($projet['semestre']); ?></p>
+            <p><strong>Coefficient :</strong> <?= htmlspecialchars($projet['coefficient']); ?></p>
+
+            <div>
+                <h2 class="section-title">Promotions Associées</h2>
+                <?php if (!empty($promotions)): ?>
+                    <ul>
+                        <?php foreach ($promotions as $promo): ?>
+                            <li><?= htmlspecialchars($promo['nom_promo']); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                <p>Aucune promotion associée à ce projet.</p>
+                <?php endif; ?>
+            </div>
+
+            <div>
+                <h2 class="section-title">Responsables</h2>
+                <?php if (!empty($responsables)): ?>
+                    <ul>
+                        <?php foreach ($responsables as $responsable): ?>
+                            <li><?= htmlspecialchars($responsable['prenom'] . ' ' . $responsable['nom']); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p>Aucun responsable associé à ce projet.</p>
+                <?php endif; ?>
+            </div>
 
             <div>
                 <h2 class="section-title">Votre Groupe de Projet</h2>
@@ -345,9 +372,25 @@ class VueEtudiant extends VueGenerique {
         </style>
 
             <div class="livrable-detail-container">
-            <h1>Détails du Livrable : <?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
+            <h1><?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
             <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description']); ?></p>
             <p><strong>Date Limite :</strong> <?= htmlspecialchars($livrable['date_limite']); ?></p>
+
+            <div>
+                <h2>Fichiers Déposés</h2>
+                <?php if (!empty($fichiers)): ?>
+                    <ul>
+                        <?php foreach ($fichiers as $fichier): ?>
+                            <li>
+                                <?= htmlspecialchars($fichier['nom_fichier']); ?>
+                                <a href="<?= htmlspecialchars($fichier['chemin_fichier']); ?>" download class="btn btn-success">Télécharger</a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                <p>Aucun fichier déposé pour ce livrable.</p>
+                <?php endif; ?>
+            </div>
 
             <div class="rendu-section">
             <h2>Votre Rendu</h2>
@@ -370,15 +413,18 @@ class VueEtudiant extends VueGenerique {
                 <?php else: ?>
                 <p>Aucun rendu soumis pour ce livrable.</p>
                 <form action="index.php?module=etudiant&action=soumettre_rendu" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="livrable_id" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                    <input type="hidden" name="id_livrable" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                
                     <div class="form-group">
                         <label for="description">Description :</label>
                         <textarea name="description" id="description" rows="5" required></textarea>
                     </div>
+
                     <div class="form-group">
                         <label for="fichiers">Ajouter des Fichiers :</label>
-                        <input type="file" id="fichiers" name="fichiers[]" multiple required>
-                    </div class="form-group">
+                        <input type="file" id="fichiers" name="fichiers[]" multiple>
+                    </div>
+
                     <div >
                         <p> Vous pouvez modifier ou supprimer le rendu qu'une fois existant.
                     </div >
