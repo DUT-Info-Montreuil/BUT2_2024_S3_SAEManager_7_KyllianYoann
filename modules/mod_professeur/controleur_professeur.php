@@ -213,30 +213,61 @@ class ControleurProfesseur {
         exit();
     }
 
-    private function form_creer_livrable() {
+    public function form_creer_livrable() {
+        if (!isset($_SESSION['utilisateur_id'])) {
+            die("Accès non autorisé.");
+        }
         $this->vue->menu();
-        $this->vue->form_creer_livrable();
+        // Récupérer les projets pour lesquels l'utilisateur est responsable
+        $projets = $this->modele->get_projets_responsable($_SESSION['utilisateur_id']);
+        // Appeler la vue avec les projets
+        $this->vue->form_creer_livrable($projets);
     }
 
     private function creer_livrable() {
-        $titre = isset($_POST["titre"]) ? $_POST["titre"] : die("Paramètre manquant");
-        $description = isset($_POST["description"]) ? $_POST["description"] : die("Paramètre manquant");
-        $date_limite = isset($_POST["date_limite"]) ? $_POST["date_limite"] : die("Paramètre manquant");
-        $coefficient = isset($_POST["coefficient"]) ? $_POST["coefficient"] : die("Paramètre manquant");
-        $isIndividuel = isset($_POST["isIndividuel"]) ? $_POST["isIndividuel"] : die("Paramètre manquant");
-        $isIndividuel = ($isIndividuel==="True") ? true:false;
+        $titre = $_POST["titre"] ?? die("Titre manquant");
+        $description = $_POST["description"] ?? die("Description manquante");
+        $date_limite = $_POST["date_limite"] ?? die("Date limite manquante");
+        $coefficient = $_POST["coefficient"] ?? die("Coefficient manquant");
+        $isIndividuel = isset($_POST["isIndividuel"]) ? $_POST["isIndividuel"] === "1" : die("Type manquant");
+        $projet_id = $_POST["projet_id"] ?? die("Projet manquant");
 
-            // Booléen IsIndividuel rajouté par Yoann
-        if ($this->modele->creer_livrable($titre, $description, $date_limite, $coefficient,$isIndividuel)) {
-            // Explication :  isIndividuel = true : Crée un livrable individuel normalement. 
-            // isIndividuel = false : Redirige vers un formulaire pour sélectionner des étudiants. Crée un groupe avec la liste des étudiants sélectionnés. Associe le groupe au livrable.
-            $this->vue->menu();
-            $this->vue->confirm_creer_livrable();
+        // Appel au modèle pour créer le livrable
+        $id_livrable = $this->modele->creer_livrable($titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id);
+
+        if ($id_livrable) {
+            // Gestion des fichiers
+            if (isset($_FILES['fichiers']) && !empty($_FILES['fichiers']['name'][0])) {
+               $this->upload_fichiers($id_livrable, $_FILES['fichiers']);
+            }
+
+            $_SESSION['success'] = "Livrable créé avec succès.";
         } else {
-            $this->vue->menu();
-            $this->vue->erreurBD();
+            $_SESSION['error'] = "Erreur lors de la création du livrable.";
+        }
+
+        header("Location: index.php?module=professeur&action=dashboard");
+        exit();
+    }
+
+    private function upload_fichiers($id_livrable, $fichiers) {
+        $upload_dir = "uploads/livrables/";
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+
+        for ($i = 0; $i < count($fichiers['name']); $i++) {
+        $nom_fichier = basename($fichiers['name'][$i]);
+        $chemin_fichier = $upload_dir . uniqid() . "_" . $nom_fichier;
+
+        if (move_uploaded_file($fichiers['tmp_name'][$i], $chemin_fichier)) {
+            $this->modele->ajouter_fichier_livrable($id_livrable, $nom_fichier, $chemin_fichier);
+            } else {
+            $_SESSION['error'] = "Erreur lors de l'upload du fichier : " . $nom_fichier;
+            }
         }
     }
+
 
     private function gestion_groupes() {
         $id_projet = $_GET['id_projet'] ?? null;
