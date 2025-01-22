@@ -1,124 +1,166 @@
 <?php
-
 class ModeleEtudiant extends Connexion {
-
-    public function soumettre_rendu($titre, $livrable_id, $fichier) {
-    // Vérifie si le fichier est bien téléchargé
-    if (isset($fichier['tmp_name']) && is_uploaded_file($fichier['tmp_name'])) {
-        // Chemin où le fichier sera enregistré
-        $chemin = 'uploads/' . basename($fichier['name']);
-
-        // Déplace le fichier dans le répertoire des uploads
-        if (move_uploaded_file($fichier['tmp_name'], $chemin)) {
-            // Préparation de la requête SQL
-            $req = "INSERT INTO Rendu (titre_rendu, fichier, date_soumission, statut, utilisateur_id, livrable_id) 
-                    VALUES (:titre, :fichier, NOW(), 'soumis', :utilisateur_id, :livrable_id)";
+    
+    public function ajouter_rendu($id_livrable, $etudiant_id, $description, $chemin_fichier) {
+        try {
+            $req = "
+                INSERT INTO Rendu (id_livrable, utilisateur_id, description, chemin_fichier, date_rendu) 
+                VALUES (:id_livrable, :etudiant_id, :description, :chemin_fichier, NOW())
+            ";
             $stmt = self::$bdd->prepare($req);
-
-            // Exécution de la requête avec les paramètres
-            $stmt->execute([
-                "titre" => $titre,
-                "fichier" => $chemin, // Le chemin du fichier
-                "utilisateur_id" => $_SESSION["utilisateur_id"],
-                "livrable_id" => $livrable_id
+            return $stmt->execute([
+                'id_livrable' => $id_livrable,
+                'etudiant_id' => $etudiant_id,
+                'description' => $description,
+                'chemin_fichier' => $chemin_fichier
             ]);
-
-            return $stmt->rowCount() > 0;
-        } else {
-            throw new Exception("Échec du déplacement du fichier.");
-        }
-    } else {
-        throw new Exception("Fichier non valide ou non téléchargé.");
+        } catch (PDOException $e) {
+            error_log("Erreur dans ajouter_rendu: " . $e->getMessage());
+            return false;
         }
     }
 
-    public function ajouter_commentaire($contenu, $evaluation_id) {
-    $req = "INSERT INTO Commentaire (contenu, evaluation_id) VALUES (:contenu, :evaluation_id)";
-    $stmt = self::$bdd->prepare($req);
-    $stmt->execute([
-        "contenu" => $contenu,
-        "evaluation_id" => $evaluation_id
-    ]);
-    return $stmt->rowCount() > 0;
+    public function etudiant_a_acces_projet($etudiant_id, $id_projet) {
+        try {
+            $req = "SELECT 1
+                FROM Projet_Promotion pp
+                JOIN Promotion_Utilisateur pu ON pp.id_promo = pu.id_promo
+                WHERE pp.id_projet = :id_projet AND pu.id_utilisateur = :etudiant_id";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute([
+                'id_projet' => $id_projet,
+                'etudiant_id' => $etudiant_id
+            ]);
+            return $stmt->fetchColumn() !== false;
+        } catch (PDOException $e) {
+            error_log("Erreur dans etudiant_a_acces_projet: " . $e->getMessage());
+            return false;
+        }
     }
 
-    public function get_livrables() {
-        $req = "SELECT id_livrable, titre_livrable, description, date_limite, coefficient 
-            FROM Livrable";
-        $stmt = self::$bdd->query($req);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    /////////////////////
+    //   GETTERS ICI   //
+    /////////////////////
+
+    public function get_projets_pour_etudiant($etudiant_id) {
+        try {
+            $req = "
+                SELECT DISTINCT Projet.*
+                FROM Projet
+                JOIN Projet_Promotion pp ON Projet.id_projet = pp.id_projet
+                JOIN Promotion_Utilisateur pu ON pp.id_promo = pu.id_promo
+                WHERE pu.id_utilisateur = :etudiant_id
+            ";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['etudiant_id' => $etudiant_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_projets_pour_etudiant: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function get_projet($id_projet) {
+        try {
+            $req = "SELECT * FROM Projet WHERE id_projet = :id_projet";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_projet' => $id_projet]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_projet: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function get_groupes_par_projet($id_projet) {
+        try {
+            $req = "
+                SELECT g.id_groupe, g.nom_groupe, GROUP_CONCAT(u.nom, ' ', u.prenom SEPARATOR ', ') AS membres
+                FROM Groupe g
+                LEFT JOIN Groupe_Utilisateur gu ON g.id_groupe = gu.groupe_id
+                LEFT JOIN Utilisateur u ON gu.utilisateur_id = u.id_utilisateur
+                WHERE g.projet_id = :id_projet
+                GROUP BY g.id_groupe
+            ";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_projet' => $id_projet]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_groupes_par_projet: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function get_livrables_par_projet($id_projet) {
+        try {
+            $req = "SELECT * FROM Livrable WHERE projet_id = :id_projet";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_projet' => $id_projet]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_livrables_par_projet: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function get_groupe_etudiant($etudiant_id, $id_projet) {
+        try {
+            $req = "
+                SELECT g.id_groupe, g.nom_groupe
+                FROM Groupe g
+                JOIN Groupe_Utilisateur gu ON g.id_groupe = gu.groupe_id
+                WHERE gu.utilisateur_id = :etudiant_id AND g.projet_id = :id_projet
+            ";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute([
+                'etudiant_id' => $etudiant_id,
+                'id_projet' => $id_projet
+            ]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_groupe_etudiant: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function get_etudiant($etudiant_id) {
+        try {
+            $req = "SELECT prenom, nom FROM Utilisateur WHERE id_utilisateur = :etudiant_id";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['etudiant_id' => $etudiant_id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_etudiant: " . $e->getMessage());
+            return null;
+        }
     }
 
     public function get_livrable($id_livrable) {
-        $req = "SELECT * FROM Livrable WHERE id_livrable = :id";
-        $stmt = self::$bdd->prepare($req);
-        $stmt->execute(['id' => $id_livrable]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $req = "SELECT * FROM Livrable WHERE id_livrable = :id_livrable";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_livrable' => $id_livrable]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_livrable: " . $e->getMessage());
+            return null;
+        }
     }
 
-    // Récupère les informations du groupe de l'utilisateur
-    public function get_groupe($utilisateur_id) {
-        $req = self::$bdd->prepare("
-            SELECT g.nom_groupe 
-            FROM Groupe g
-            JOIN Groupe_Utilisateur gu ON g.id_groupe = gu.groupe_id
-            WHERE gu.utilisateur_id = :utilisateur_id
-        ");
-        $req->execute(['utilisateur_id' => $utilisateur_id]);
-        return $req->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function get_evaluations($id_livrable) {
-    $req = "SELECT e.id_evaluation, e.note, e.type, e.rendu_id 
-            FROM Evaluation e 
-            JOIN Rendu r ON e.rendu_id = r.id_rendu 
-            WHERE r.livrable_id = :id_livrable";
-    $stmt = self::$bdd->prepare($req);
-    $stmt->execute(['id_livrable' => $id_livrable]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function get_commentaires($id_evaluation) {
-    $req = "SELECT * FROM Commentaire WHERE evaluation_id = :id_evaluation";
-    $stmt = self::$bdd->prepare($req);
-    $stmt->execute(['id_evaluation' => $id_evaluation]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-
-  
-    public function get_feedbacks_by_livrable($id_livrable) {
-    $req = self::$bdd->prepare("
-        SELECT Feedback.contenu, Feedback.date_feedback, 
-               Rendu.titre_rendu AS rendu_titre, 
-               Livrable.titre_livrable AS livrable_titre 
-        FROM Feedback
-        JOIN Rendu ON Feedback.rendu_id = Rendu.id_rendu
-        JOIN Livrable ON Rendu.livrable_id = Livrable.id_livrable
-        WHERE Livrable.id_livrable = :id_livrable
-    ");
-    $req->bindParam(':id_livrable', $id_livrable, PDO::PARAM_INT);
-    $req->execute();
-    return $req->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function get_rendu_by_livrable($id_livrable, $utilisateur_id) {
-    $req = "SELECT * FROM Rendu WHERE livrable_id = :id_livrable AND utilisateur_id = :utilisateur_id";
-    $stmt = self::$bdd->prepare($req);
-    $stmt->execute([
-        'id_livrable' => $id_livrable,
-        'utilisateur_id' => $utilisateur_id,
-    ]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-
-    // Récupère les coefficients des livrables
-    public function get_coefficients() {
-        $req = "SELECT titre_livrable, coefficient 
-                FROM Livrable";
-        $stmt = self::$bdd->query($req);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function get_rendu_etudiant($id_livrable, $etudiant_id) {
+        try {
+            $req = "SELECT * FROM Rendu WHERE id_livrable = :id_livrable AND utilisateur_id = :etudiant_id";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute([
+                'id_livrable' => $id_livrable,
+                'etudiant_id' => $etudiant_id
+            ]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_rendu_etudiant: " . $e->getMessage());
+            return null;
+        }
     }
 }
 
+?>
