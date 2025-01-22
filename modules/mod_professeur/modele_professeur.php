@@ -307,6 +307,18 @@ class ModeleProfesseur extends Connexion {
     //      GETTERS    //
     /////////////////////
 
+    public function getRendusByLivrable($id_livrable) {
+        $sql = "SELECT r.id_rendu, r.date_soumission, r.nom_fichier, r.details, e.nom AS etudiant_nom, g.nom AS groupe_nom
+            FROM Rendu r
+            LEFT JOIN etudiants e ON r.etudiant_id = e.id_utilisateur
+            LEFT JOIN groupes g ON r.groupe_id = g.id_groupe
+            WHERE r.livrable_id = :id_livrable";
+        $query = $this->connexion->prepare($sql);
+        $query->execute(['id_livrable' => $id_livrable]);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function get_livrable($id_livrable) {
     try {
             // Validation de l'entrée pour s'assurer que l'identifiant est valide
@@ -356,7 +368,6 @@ class ModeleProfesseur extends Connexion {
                 // Ajouter les responsables avec leurs noms et prénoms
                 $projet['responsables'] = $this->get_responsables_projet_avec_noms($id_projet);
             }
-
             return $projet;
         } catch (Exception $e) {
             return false;
@@ -367,21 +378,16 @@ class ModeleProfesseur extends Connexion {
         try {
             // Requête SQL pour obtenir l'ID du professeur associé au projet
             $req = "SELECT responsable_id FROM Projet WHERE id_projet = :id_projet";
-        
             // Préparer la requête SQL
             $stmt = self::$bdd->prepare($req);
-        
             // Exécuter la requête avec l'ID du projet comme paramètre
             $stmt->execute(['id_projet' => $id_projet]);
-        
             // Récupérer le résultat de la requête
             $projet = $stmt->fetch();
-
             // Si un projet est trouvé, renvoyer l'ID du professeur
             if ($projet) {
                 return $projet['professeur_id'];  // Retourne l'ID du professeur associé au projet
             }
-
             // Si aucun projet n'est trouvé, retourner false
             return false;
         } catch (Exception $e) {
