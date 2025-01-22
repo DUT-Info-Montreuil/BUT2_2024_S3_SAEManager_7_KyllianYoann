@@ -43,9 +43,10 @@ class VueProfesseur extends VueGenerique {
         <?php
     }
 
-    public function dashboard($professeur_info, $statistiques, $projets) { 
+public function dashboard($professeur_info, $statistiques, $projets) { 
         $nom = htmlspecialchars($professeur_info['nom'] ?? 'Inconnu');
         $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
+        $professeur_id = htmlspecialchars($professeur_info['id_utilisateur'] ?? 'Inconnu');
         ?>
         <style>
         /* Styles CSS */
@@ -294,43 +295,54 @@ class VueProfesseur extends VueGenerique {
         </style>
         <div class="form-container">
         <h1>Créer un Livrable</h1>
+        <?php if (isset($_SESSION['error'])): ?>
+        <div class="error-message"><?= htmlspecialchars($_SESSION['error']); ?></div>
+        <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
         <form action="index.php?module=professeur&action=creer_livrable" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="titre">Titre :</label>
-                <input type="text" id="titre" name="titre" placeholder="Titre du livrable" value="<?= htmlspecialchars($form_data['titre'] ?? ''); ?>" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Description :</label>
-                <textarea id="description" name="description" placeholder="Détaillez le contenu attendu" required><?= htmlspecialchars($form_data['description'] ?? ''); ?></textarea>
-            </div>
-            <div class="form-group">
-                <label for="date_limite">Date Limite :</label>
-                <input type="date" id="date_limite" name="date_limite" value="<?= htmlspecialchars($form_data['date_limite'] ?? ''); ?>" required>
-            </div>
-            <div class="form-group">
-                <label for="coefficient">Coefficient :</label>
-                <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" value="<?= htmlspecialchars($form_data['coefficient'] ?? ''); ?>" required>
-            </div>
-            <div class="form-group">
-                <label for="projet_id">Projet :</label>
-                <select id="projet_id" name="projet_id" required>
-                    <option value="">Sélectionnez un projet</option>
-                    <?php foreach ($projets_responsable as $projet): ?>
-                        <option value="<?= htmlspecialchars($projet['id_projet']); ?>" <?= (isset($form_data['projet_id']) && $form_data['projet_id'] == $projet['id_projet']) ? 'selected' : ''; ?>>
-                            <?= htmlspecialchars($projet['titre']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group checkbox-container">
-                <input type="checkbox" id="is_group" name="is_group" <?= !empty($form_data['is_group']) ? 'checked' : ''; ?>>
-                <label for="is_group">Est-ce un rendu groupé ?</label>
-            </div>
-            <div class="form-group">
-                <label for="fichiers">Ajouter des fichiers :</label>
-                <input type="file" id="fichiers" name="fichiers[]" multiple>
-            </div>
-            <button type="submit" class="form-submit">Créer le Livrable</button>
+        <div class="form-group">
+            <label for="titre">Titre :</label>
+            <input type="text" id="titre" name="titre" placeholder="Titre du livrable" value="<?= htmlspecialchars($form_data['titre'] ?? ''); ?>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description :</label>
+            <textarea id="description" name="description" placeholder="Détaillez le contenu attendu" required><?= htmlspecialchars($form_data['description'] ?? ''); ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="date_limite">Date Limite :</label>
+            <input type="date" id="date_limite" name="date_limite" value="<?= htmlspecialchars($form_data['date_limite'] ?? ''); ?>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="coefficient">Coefficient :</label>
+            <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" value="<?= htmlspecialchars($form_data['coefficient'] ?? ''); ?>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="projet_titre">Projet :</label>
+            <select id="projet_titre" name="projet_titre" required>
+                <option value="">Sélectionnez un projet</option>
+                <?php foreach ($projets_responsable as $projet): ?>
+                    <option value="<?= htmlspecialchars($projet['titre']); ?>" <?= (isset($form_data['projet_titre']) && $form_data['projet_titre'] == $projet['titre']) ? 'selected' : ''; ?>>
+                        <?= htmlspecialchars($projet['titre']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div class="form-group checkbox-container">
+            <input type="checkbox" id="is_group" name="is_group" <?= !empty($form_data['is_group']) ? 'checked' : ''; ?>>
+            <label for="is_group">Est-ce un rendu groupé ?</label>
+        </div>
+
+        <div class="form-group">
+            <label for="fichiers">Ajouter des fichiers :</label>
+            <input type="file" id="fichiers" name="fichiers[]" multiple>
+        </div>
+
+        <button type="submit" class="form-submit">Créer le Livrable</button>
         </form>
         </div>
     <?php
@@ -793,6 +805,10 @@ class VueProfesseur extends VueGenerique {
                 <p>Utilisez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs promotions.</p>
             </div>
 
+
+
+
+
             <div class="form-group">
                 <label for="responsables">Responsables :</label>
                 <select id="responsables" name="responsables[]" multiple required>
@@ -1095,6 +1111,9 @@ class VueProfesseur extends VueGenerique {
         <a href="index.php?module=professeur&action=modifier_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-primary">
             Modifier le projet
         </a>
+        <a href="index.php?module=professeur&action=gestion_evaluations&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>&id_professeur=<?= htmlspecialchars($professeur_id); ?>" class="btn btn-secondary">
+            Gestion des Evaluations
+        </a>
         <a href="index.php?module=professeur&action=gestion_groupes&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-secondary">
             Gestion des Groupes
         </a>
@@ -1271,6 +1290,366 @@ class VueProfesseur extends VueGenerique {
                         </option>
                     <?php endforeach; ?>
                 </select>
+
+                <button type="submit">Créer le Groupe</button>
+            </form>
+        </div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="filter-bar">
+            <input type="search" id="search-groupe" placeholder="Rechercher un groupe..." onkeyup="filterTable()">
+            <select id="filter-etudiant" onchange="filterTable()">
+                <option value="">Tous les étudiants</option>
+                <?php foreach ($etudiants as $etudiant): ?>
+                    <option value="<?= htmlspecialchars($etudiant['prenom'] . ' ' . $etudiant['nom']); ?>">
+                        <?= htmlspecialchars($etudiant['prenom'] . ' ' . $etudiant['nom']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <!-- Tableau des groupes -->
+        <table class="table-groups" id="groupes-table">
+            <thead>
+                <tr>
+                    <th>Nom du groupe</th>
+                    <th>Membres</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($groupes as $groupe): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($groupe['nom_groupe']); ?></td>
+                        <td><?= htmlspecialchars($groupe['membres']); ?></td>
+                        <td>
+                            <a href="index.php?module=professeur&action=modifier_groupe&id_groupe=<?= htmlspecialchars($groupe['id_groupe']); ?>">Modifier</a>
+                            <a href="index.php?module=professeur&action=supprimer_groupe&id_groupe=<?= htmlspecialchars($groupe['id_groupe']); ?>&id_projet=<?= htmlspecialchars($id_projet); ?>" 
+                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce groupe ?');">
+                                Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+
+        <script>
+        function filterTable() {
+            const searchInput = document.getElementById('search-groupe').value.toLowerCase();
+            const filterSelect = document.getElementById('filter-etudiant').value.toLowerCase();
+            const table = document.getElementById('groupes-table');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const nomGroupe = rows[i].getElementsByTagName('td')[0]?.textContent.toLowerCase() || '';
+                const membres = rows[i].getElementsByTagName('td')[1]?.textContent.toLowerCase() || '';
+
+                if (
+                    (searchInput === '' || nomGroupe.includes(searchInput)) &&
+                    (filterSelect === '' || membres.includes(filterSelect))
+                ) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+        </script>
+    <?php
+    }
+
+
+    public function gestion_evaluations($id_projet, $etudiants, $groupes) {
+    ?>
+        <style>
+        /* Conteneur principal */
+        .gestion-groupes-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .gestion-groupes-container h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Formulaire pour créer un groupe */
+        .form-create-group {
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-create-group h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .form-create-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-create-group input[type="text"],
+        .form-create-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-create-group button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #4cd137;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-create-group button:hover {
+            background-color: #44bd32;
+        }
+
+        /* Tableau des groupes */
+        .table-groups {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table-groups th,
+        .table-groups td {
+            text-align: left;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .table-groups th {
+            background-color: #4cd137;
+            color: white;
+            font-size: 16px;
+        }
+
+        .table-groups tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table-groups tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-groups td a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .table-groups td a:hover {
+            color: #2980b9;
+        }
+
+        /* Barre de recherche et filtre */
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 48%;
+        }
+        </style>
+
+        <div class="gestion-groupes-container">
+        <h1>Gestion des Evaluations</h1>
+            <a href="index.php?module=professeur&action=creer_evaluation&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>&id_professeur=<?= htmlspecialchars($professeur_id); ?>" class="btn btn-secondary">
+            Nouvelle Evaluation
+             </a>
+
+
+        <!-- Formulaire pour créer un groupe -->
+        <div class="form-create-group">
+            <h2>Liste des Evaluations</h2>
+            
+        </div>
+
+       
+        
+    <?php
+    }
+
+    public function creer_evaluation($id_projet, $etudiants, $groupes) {
+    ?>
+        <style>
+        /* Conteneur principal */
+        .gestion-groupes-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .gestion-groupes-container h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Formulaire pour créer un groupe */
+        .form-create-group {
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-create-group h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .form-create-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-create-group input[type="text"],
+        .form-create-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-create-group button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #4cd137;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-create-group button:hover {
+            background-color: #44bd32;
+        }
+
+        /* Tableau des groupes */
+        .table-groups {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table-groups th,
+        .table-groups td {
+            text-align: left;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .table-groups th {
+            background-color: #4cd137;
+            color: white;
+            font-size: 16px;
+        }
+
+        .table-groups tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table-groups tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-groups td a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .table-groups td a:hover {
+            color: #2980b9;
+        }
+
+        /* Barre de recherche et filtre */
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 48%;
+        }
+        </style>
+
+        <div class="gestion-groupes-container">
+       
+           
+
+
+        <!-- Formulaire pour créer un groupe -->
+        <div class="form-create-group">
+            <h2>Créer Evaluation</h2>
+            <form action="index.php?module=professeur&action=creer_evaluation" method="POST">
+                <input type="hidden" name="evaluateur_id" value="<?= htmlspecialchars($professeur_id); ?>">
+                <input type="hidden" name="rendu_id" value="<?= htmlspecialchars($id_projet); ?>">
+
+                <label for="note">note :</label>
+                <input type="number" id="note" name="note" step="0.01" required>
+
+                <label for="type">type :</label>
+                <input type="text" id="type" name="type" maxlenght="50" required>
+
+                
 
                 <button type="submit">Créer le Groupe</button>
             </form>
