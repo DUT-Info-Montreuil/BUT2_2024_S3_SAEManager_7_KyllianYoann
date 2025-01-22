@@ -878,89 +878,115 @@ class VueProfesseur extends VueGenerique {
         ?>
         <style>
         .livrable-container {
-        margin: 20px auto;
-        max-width: 800px;
-        background-color: #f9f9f9;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        font-family: Arial, sans-serif;
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
         }
 
         .livrable-container h1 {
-        font-size: 28px;
-        color: #2c3e50;
-        text-align: center;
-        margin-bottom: 20px;
+            font-size: 28px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .livrable-container p {
-        font-size: 16px;
-        margin: 10px 0;
-        line-height: 1.6;
+            font-size: 16px;
+            margin: 10px 0;
+            line-height: 1.6;
         }
 
-        .files-list ul {
-        list-style-type: none;
-        padding-left: 0;
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
         }
 
-        .files-list ul li {
-        margin-bottom: 15px;
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
         }
 
-        .files-list a {
-        text-decoration: none;
-        color: #3498db;
+        .btn-primary {
+            background-color: #3498db;
         }
 
-        .files-list a:hover {
-        text-decoration: underline;
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #f39c12;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
         }
 
         .table-container {
-        margin-top: 30px;
-        overflow-x: auto;
+            margin-top: 30px;
+            overflow-x: auto;
         }
 
         .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .table th, .table td {
-        padding: 10px;
-        text-align: left;
-        border: 1px solid #ddd;
+        .table th,
+        .table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
         }
 
         .table th {
-        background-color: #4cd137;
-        color: white;
+            background-color: #4cd137;
+            color: white;
         }
 
         .table tr:nth-child(even) {
-        background-color: #f9f9f9;
+            background-color: #f9f9f9;
         }
 
         .table tr:hover {
-        background-color: #f1f1f1;
+            background-color: #f1f1f1;
         }
 
         .filter-bar {
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
         }
 
         .filter-bar input {
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        width: 100%;
-        max-width: 300px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 300px;
         }
         </style>
 
@@ -971,6 +997,17 @@ class VueProfesseur extends VueGenerique {
         <p><strong>Date limite :</strong> <?= htmlspecialchars($livrable['date_limite'] ?? 'Non définie'); ?></p>
         <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient'] ?? 'Non défini'); ?></p>
         <p><strong>Type :</strong> <?= $livrable['isIndividuel'] ? "Rendu Individuel" : "Rendu Groupé"; ?></p>
+        <?php if (!empty($livrable['projet_id'])): ?>
+            <p><strong>Projet :</strong> 
+                <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($livrable['projet_id']); ?>">
+                    Voir le projet associé
+                </a>
+            </p>
+        <?php else: ?>
+            <p><strong>Projet :</strong> Non assigné</p>
+        <?php endif; ?>
+
+        <!-- Section pour les fichiers -->
         <div class="files-list">
             <h3>Fichiers Actuels :</h3>
             <?php if (!empty($fichiers)): ?>
@@ -987,6 +1024,16 @@ class VueProfesseur extends VueGenerique {
                 <p>Pas de fichiers associés pour ce livrable.</p>
             <?php endif; ?>
         </div>
+
+        <div class="actions">
+            <a href="index.php?module=professeur&action=modifier_livrable&id_livrable=<?= htmlspecialchars($livrable['id_livrable']); ?>" class="btn btn-primary">
+                Modifier le livrable
+            </a>
+            <form action="index.php?module=professeur&action=supprimer_livrable" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce livrable ?');" style="display: inline;">
+                <input type="hidden" name="id_livrable" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                <button type="submit" class="btn btn-danger">Supprimer le livrable</button>
+            </form>
+        </div>
         </div>
 
         <!-- Tableau des rendus -->
@@ -995,59 +1042,59 @@ class VueProfesseur extends VueGenerique {
         <div class="filter-bar">
             <input type="text" id="search-rendu" placeholder="Rechercher un rendu..." onkeyup="filterRendus()">
         </div>
-                <table id="rendus-table" class="table">
-                    <thead>
-                        <tr>
-                            <th>Étudiant</th>
-                            <th>Groupe</th>
-                            <th>Date de Soumission</th>
-                            <th>Fichier</th>
-                            <th>Détails</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            <?php if (!empty($rendus) && is_array($rendus)): ?>
-                <?php foreach ($rendus as $rendu): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($rendu['etudiant_nom']); ?></td>
-                        <td><?= htmlspecialchars($rendu['groupe_nom'] ?? 'Individuel'); ?></td>
-                        <td><?= htmlspecialchars($rendu['date_soumission']); ?></td>
-                        <td>
-                            <a href="<?= htmlspecialchars($rendu['chemin_fichier']); ?>" target="_blank">
-                                <?= htmlspecialchars($rendu['nom_fichier']); ?>
-                            </a>
-                        </td>
-                        <td><?= htmlspecialchars($rendu['details']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
+        <table id="rendus-table" class="table">
+            <thead>
                 <tr>
-                    <td colspan="5" style="text-align: center;">Aucun rendu disponible pour ce livrable.</td>
+                    <th>Étudiant</th>
+                    <th>Groupe</th>
+                    <th>Date de Soumission</th>
+                    <th>Fichier</th>
+                    <th>Détails</th>
                 </tr>
-            <?php endif; ?>
-        </tbody>
+            </thead>
+            <tbody>
+                <?php if (!empty($rendus) && is_array($rendus)): ?>
+                    <?php foreach ($rendus as $rendu): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($rendu['etudiant_nom']); ?></td>
+                            <td><?= htmlspecialchars($rendu['groupe_nom'] ?? 'Individuel'); ?></td>
+                            <td><?= htmlspecialchars($rendu['date_soumission']); ?></td>
+                            <td>
+                                <a href="<?= htmlspecialchars($rendu['chemin_fichier']); ?>" target="_blank">
+                                    <?= htmlspecialchars($rendu['nom_fichier']); ?>
+                                </a>
+                            </td>
+                            <td><?= htmlspecialchars($rendu['details']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">Aucun rendu disponible pour ce livrable.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
         </table>
         </div>
 
         <script>
         function filterRendus() {
-        const input = document.getElementById('search-rendu').value.toLowerCase();
-        const table = document.getElementById('rendus-table');
-        const rows = table.getElementsByTagName('tr');
+            const input = document.getElementById('search-rendu').value.toLowerCase();
+            const table = document.getElementById('rendus-table');
+            const rows = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            let match = false;
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let match = false;
 
-            for (let j = 0; j < cells.length; j++) {
-                if (cells[j].textContent.toLowerCase().includes(input)) {
-                    match = true;
-                    break;
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].textContent.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
                 }
-            }
 
-            rows[i].style.display = match ? '' : 'none';
-        }
+                rows[i].style.display = match ? '' : 'none';
+            }
         }
         </script>
         <?php
