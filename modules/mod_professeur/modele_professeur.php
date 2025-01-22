@@ -15,8 +15,11 @@ class ModeleProfesseur extends Connexion {
                 "isIndividuel" => $isIndividuel,
                 "projet_id" => $projet_id
             ]);
-            return $stmt->rowCount() > 0;
+
+            // Récupérer l'ID du livrable inséré
+            return self::$bdd->lastInsertId();
         } catch (Exception $e) {
+            error_log("Erreur dans creer_livrable: " . $e->getMessage());
             return false;
         }
     }
@@ -59,30 +62,6 @@ class ModeleProfesseur extends Connexion {
         }
     }
 
-    public function creer_projet($titre, $description, $responsables, $semestre, $coefficient) {
-        try {
-            $req = "INSERT INTO Projet (titre, description, semestre, coefficient) 
-                    VALUES (:titre, :description, :semestre, :coefficient)";
-            $stmt = self::$bdd->prepare($req);
-            $stmt->execute([
-                'titre' => $titre,
-                'description' => $description,
-                'semestre' => $semestre,
-                'coefficient' => $coefficient
-            ]);
-
-            $id_projet = self::$bdd->lastInsertId();
-
-            foreach ($responsables as $id_professeur) {
-                $this->associer_projet_responsable($id_projet, $id_professeur);
-            }
-
-            return $id_projet;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
     public function supprimer_projet($id_projet) {
         try {
             // Supprimer les relations (groupes, livrables, etc.) associées au projet
@@ -93,7 +72,7 @@ class ModeleProfesseur extends Connexion {
             $req = "DELETE FROM Projet WHERE id_projet = :id_projet";
             $stmt = self::$bdd->prepare($req);
             $stmt->bindParam(':id_projet', $id_projet, PDO::PARAM_INT);
-            return $stmt->execute();
+            return $stmt->execute(); // Retourne true si la suppression réussit
         } catch (Exception $e) {
             return false;
         }
@@ -253,17 +232,23 @@ class ModeleProfesseur extends Connexion {
     }
 
     public function ajouter_fichier_livrable($id_livrable, $nom_fichier, $chemin_fichier) {
-        $req = "INSERT INTO Fichier (nom_fichier, chemin_fichier, id_livrable) 
-                VALUES (:nom_fichier, :chemin_fichier, :id_livrable)";
-        $stmt = self::$bdd->prepare($req);
-        $stmt->execute([
-            "nom_fichier" => $nom_fichier,
-            "chemin_fichier" => $chemin_fichier,
-            "id_livrable" => $id_livrable
-        ]);
-        return $stmt->rowCount() > 0;
-    }
+        try {
+            $req = "INSERT INTO Fichier (id_livrable, nom_fichier, chemin_fichier) 
+                    VALUES (:id_livrable, :nom_fichier, :chemin_fichier)";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute([
+                'id_livrable' => $id_livrable,
+                'nom_fichier' => $nom_fichier,
+                'chemin_fichier' => $chemin_fichier
+            ]);
+            return true;
+        } catch (PDOException $e) {
+            error_log("Erreur dans ajouter_fichier_livrable: " . $e->getMessage());
+            return false;
+        }
+    } 
 
+    
     public function ajouter_feedback($rendu_id, $feedback) {
         $req = "INSERT INTO Feedback (rendu_id, contenu) VALUES (:rendu_id, :contenu)";
         $stmt = self::$bdd->prepare($req);
@@ -333,6 +318,19 @@ class ModeleProfesseur extends Connexion {
             return false;
         }
     }
+
+    public function get_projet_par_titre($titre) {
+        try {
+            $req = "SELECT id_projet FROM Projet WHERE titre = :titre";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['titre' => $titre]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erreur dans get_projet_par_titre: " . $e->getMessage());
+            return null;
+        }
+    }
+
 
     // Récupérer les étudiants des promotions associées au projet
     public function get_etudiants_promotions($id_projet) {
