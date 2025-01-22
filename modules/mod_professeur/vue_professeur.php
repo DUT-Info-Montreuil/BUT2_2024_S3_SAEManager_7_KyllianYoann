@@ -3,7 +3,7 @@ class VueProfesseur extends VueGenerique {
     public function __construct() {
         parent::__construct();
     }
-    
+
     public function menu() {
     ?>
     <style>
@@ -45,8 +45,8 @@ class VueProfesseur extends VueGenerique {
     }
 
     public function dashboard($professeur_info, $statistiques, $projets) { 
-    $nom = htmlspecialchars($professeur_info['nom'] ?? 'Inconnu');
-    $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
+        $nom = htmlspecialchars($professeur_info['nom'] ?? 'Inconnu');
+        $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
     ?>
     <style>
         .dashboard-container {
@@ -209,7 +209,9 @@ class VueProfesseur extends VueGenerique {
                     <div class="projet-card">
                         <h3><?= htmlspecialchars($projet['titre']); ?></h3>
                         <p><?= htmlspecialchars($projet['description']); ?></p>
-                        <a href="index.php?module=professeur&action=details_projet&id_projet=<?= $projet['id_projet']; ?>">Voir le Projet</a>
+                        <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-success">
+                            Voir le Projet
+                        </a>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -219,6 +221,8 @@ class VueProfesseur extends VueGenerique {
     </div>
     <?php
     }
+
+
 
     public function form_creer_livrable() {
         ?>
@@ -294,8 +298,7 @@ class VueProfesseur extends VueGenerique {
                     <label for="coefficient">Coefficient :</label>
                     <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" required>
                 </div>
-                <button type="submit" class="form-submit">Créer le Livrable</button>
-                 <div class="form-group">
+                <div class="form-group">
                 <input type="radio" id="True" name="isIndividuel" value="True">
                 <label for="True">Individuel</label>
 
@@ -412,7 +415,7 @@ class VueProfesseur extends VueGenerique {
     }
 
     public function form_creer_projet($promotions, $professeurs) {
-    ?>
+?>
     <style>
         .form-container {
             margin: 20px auto;
@@ -467,38 +470,308 @@ class VueProfesseur extends VueGenerique {
             background-color: #44bd32;
         }
     </style>
+        <div class="form-container">
+            <h1>Créer un Projet</h1>
+            <form action="index.php?module=professeur&action=creer_projet" method="POST">
+                <div class="form-group">
+                    <label for="titre">Titre :</label>
+                    <input type="text" id="titre" name="titre" placeholder="Titre du projet" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description :</label>
+                    <textarea id="description" name="description" placeholder="Détaillez le contenu du projet" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="semestre">Semestre :</label>
+                    <input type="number" id="semestre" name="semestre" placeholder="Numéro du semestre (ex : 1, 2, 3...)" required>
+                </div>
+                <div class="form-group">
+                    <label for="coefficient">Coefficient :</label>
+                    <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient du projet (ex : 1.0, 2.5...)" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="promotions">Promotions :</label>
+                    <select id="promotions" name="promotions[]" multiple required>
+                        <?php foreach ($promotions as $promo): ?>
+                            <option value="<?= htmlspecialchars($promo['id_promo']); ?>">
+                                <?= htmlspecialchars($promo['nom_promo']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="responsables">Professeurs responsables :</label>
+                    <select id="responsables" name="responsables[]" multiple required>
+                        <?php foreach ($professeurs as $prof): ?>
+                            <option value="<?= $prof['id_utilisateur']; ?>">
+                                <?= htmlspecialchars($prof['nom'] . ' ' . $prof['prenom']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <button type="submit" class="form-submit">Créer le Projet</button>
+            </form>
+        </div>
+    <?php
+    }
+
+
+    public function form_modifier_projet($projet, $promotions, $responsables) {
+    ?>
+    <style>
+        .form-container {
+            margin: 20px auto;
+            max-width: 600px;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .form-submit {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #4cd137;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-submit:hover {
+            background-color: #44bd32;
+        }
+
+        .form-group p {
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+
     <div class="form-container">
-        <h1>Créer un Projet</h1>
-        <form action="index.php?module=professeur&action=creer_projet" method="POST">
+        <h1>Modifier un Projet</h1>
+        <form action="index.php?module=professeur&action=mettre_a_jour_projet" method="POST">
+            <input type="hidden" name="id_projet" value="<?= htmlspecialchars($projet['id_projet']); ?>">
+
             <div class="form-group">
                 <label for="titre">Titre :</label>
-                <input type="text" id="titre" name="titre" placeholder="Titre du projet" required>
+                <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($projet['titre']); ?>" required>
             </div>
+
             <div class="form-group">
                 <label for="description">Description :</label>
-                <textarea id="description" name="description" placeholder="Détaillez le contenu du projet" required></textarea>
+                <textarea id="description" name="description" required><?= htmlspecialchars($projet['description']); ?></textarea>
             </div>
+
             <div class="form-group">
-                <label for="promotion">Promotion :</label>
-                <select id="promotion" name="promotion" required>
-                    <option value="" disabled selected>Choisissez une promotion</option>
+                <label for="semestre">Semestre :</label>
+                <input type="number" id="semestre" name="semestre" value="<?= htmlspecialchars($projet['semestre'] ?? 0); ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="coefficient">Coefficient :</label>
+                <input type="number" id="coefficient" name="coefficient" value="<?= htmlspecialchars($projet['coefficient'] ?? 1); ?>" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="annee_universitaire">Promotions :</label>
+                <select id="annee_universitaire" name="promotions[]" multiple required>
                     <?php foreach ($promotions as $promo): ?>
-                        <option value="<?= $promo['id_promo']; ?>"><?= htmlspecialchars($promo['nom_promo']); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="responsables">Professeurs responsables :</label>
-                <select id="responsables" name="responsables[]" multiple required>
-                    <?php foreach ($professeurs as $prof): ?>
-                        <option value="<?= $prof['id_utilisateur']; ?>">
-                            <?= htmlspecialchars($prof['nom'] . ' ' . $prof['prenom']); ?>
+                        <option value="<?= htmlspecialchars($promo['id_promo']); ?>" 
+                            <?= in_array($promo['id_promo'], $projet['promotions']) ? 'selected' : ''; ?>>
+                            <?= htmlspecialchars($promo['nom_promo']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <p>Utilisez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs promotions.</p>
             </div>
-            <button type="submit" class="form-submit">Créer le Projet</button>
+
+            <div class="form-group">
+                <label for="responsables">Responsables :</label>
+                <select id="responsables" name="responsables[]" multiple required>
+                    <?php foreach ($responsables as $responsable): ?>
+                        <option value="<?= htmlspecialchars($responsable['id_utilisateur']); ?>" 
+                            <?= in_array($responsable['id_utilisateur'], $projet['responsables'] ?? []) ? 'selected' : ''; ?>>
+                            <?= htmlspecialchars($responsable['nom'] . ' ' . $responsable['prenom']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <p>Utilisez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs responsables.</p>
+            </div>
+
+
+            <button type="submit" class="form-submit">Mettre à jour</button>
         </form>
+        <a href="index.php?module=professeur&action=dashboard" class="form-submit" style="background-color: #ccc; text-align: center;">Retour au tableau de bord</a>
+    </div>
+    <?php
+    }
+
+    public function detail_projet($projet, $livrables) {
+    ?>
+    <style>
+        .projet-container {
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .projet-container h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .projet-container p {
+            font-size: 16px;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .projet-container h2 {
+            font-size: 22px;
+            color: #4cd137;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        .projet-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .projet-container ul li {
+            background-color: #ffffff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+    </style>
+
+    <div class="projet-container">
+        <h1><?= htmlspecialchars($projet['titre']); ?></h1>
+        <p><strong>Description :</strong> <?= htmlspecialchars($projet['description']); ?></p>
+        <p><strong>Semestre :</strong> <?= htmlspecialchars($projet['semestre']); ?></p>
+        <p><strong>Coefficient :</strong> <?= htmlspecialchars($projet['coefficient']); ?></p>
+        <p><strong>Responsables :</strong> 
+            <?php if (!empty($projet['responsables'])): ?>
+                <?= implode(', ', array_map(function ($resp) {
+                    return htmlspecialchars($resp['prenom'] . ' ' . $resp['nom']);
+                }, $projet['responsables'])); ?>
+            <?php else: ?>
+                Non spécifié
+            <?php endif; ?>
+        </p>
+
+        <p><strong>Promotions :</strong> 
+            <?php if (!empty($projet['promotions'])): ?>
+                <?= implode(', ', array_map(function ($promo) {
+                    return htmlspecialchars($promo['nom_promo']);
+                }, $projet['promotions'])); ?>
+            <?php else: ?>
+                Non spécifié
+            <?php endif; ?>
+        </p>
+
+
+        <h2>Livrables associés</h2>
+        <ul>
+            <?php foreach ($livrables as $livrable): ?>
+                <li>
+                    <strong><?= htmlspecialchars($livrable['titre_livrable']); ?> :</strong> 
+                    <?= htmlspecialchars($livrable['description']); ?> (Date limite : <?= htmlspecialchars($livrable['date_limite']); ?>)
+                </li>
+            <?php endforeach; ?>
+        </ul>
+
+        <div class="actions">
+            <a href="index.php?module=professeur&action=modifier_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-primary">
+                Modifier le projet
+            </a>
+
+            <form action="index.php?module=professeur&action=supprimer_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" method="GET" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                <button type="submit" class="btn btn-danger">Supprimer le projet</button>
+            </form>
+        </div>
     </div>
     <?php
     }
