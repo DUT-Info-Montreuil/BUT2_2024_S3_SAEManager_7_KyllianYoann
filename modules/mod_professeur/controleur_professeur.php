@@ -79,7 +79,7 @@ class ControleurProfesseur {
                 $livrable = $this->modele->get_livrable($id_livrable);
                 $fichiers = $this->modele->get_fichiers_livrable($id_livrable); // Récupère les fichiers associés
                 if ($livrable) {
-                    $this->vue->detail_livrable($livrable, $fichiers);
+                    $this->vue->detail_livrable($livrable, $fichiers, $rendus);
                 } else {
                     $_SESSION['error'] = "Livrable introuvable.";
                     header("Location: index.php?module=professeur&action=dashboard");
@@ -190,6 +190,7 @@ class ControleurProfesseur {
             header("Location: index.php?module=professeur&action=dashboard");
             exit();
         }
+
         // Récupérer les détails du livrable à partir du modèle
         $livrable = $this->modele->get_livrable($id_livrable);
         if (!$livrable) {
@@ -197,9 +198,10 @@ class ControleurProfesseur {
             header("Location: index.php?module=professeur&action=dashboard");
             exit();
         }
+
         // Afficher la vue pour les détails du livrable
         $this->vue->menu();
-        $this->vue->detail_livrable($livrable);
+        $this->vue->detail_livrable($livrable, $fichiers); // Ce passage cause l'erreur
     }
     
     private function form_creer_livrable() {
