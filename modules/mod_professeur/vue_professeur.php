@@ -6,7 +6,7 @@ class VueProfesseur extends VueGenerique {
 
     public function menu() {
     ?>
-    <style>
+        <style>
         .menu {
             display: flex;
             justify-content: space-around;
@@ -33,198 +33,196 @@ class VueProfesseur extends VueGenerique {
         .menu a.active {
             background-color: #4cd137;
         }
-    </style>
-    <nav class="menu">
-        <a href="index.php?module=professeur&action=dashboard" class="active">Dashboard</a>
-        <a href="index.php?module=professeur&action=form_creer_projet">Créer un Projet</a>
-        <a href="index.php?module=professeur&action=form_creer_livrable">Créer un Livrable</a>
-        <a href="index.php?module=professeur&action=consulter_rendus">Consulter les Rendus</a>
-        <a href="index.php?module=connexion&action=deconnexion">Déconnexion</a>
-    </nav>
-    <?php
+        </style>
+        <nav class="menu">
+            <a href="index.php?module=professeur&action=dashboard" class="active">Dashboard</a>
+            <a href="index.php?module=professeur&action=form_creer_projet">Créer un Projet</a>
+            <a href="index.php?module=professeur&action=form_creer_livrable">Créer un Livrable</a>
+            <a href="index.php?module=professeur&action=consulter_rendus">Consulter les Rendus</a>
+            <a href="index.php?module=connexion&action=deconnexion">Déconnexion</a>
+        </nav>
+        <?php
     }
 
     public function dashboard($professeur_info, $statistiques, $projets) { 
         $nom = htmlspecialchars($professeur_info['nom'] ?? 'Inconnu');
         $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
-    ?>
-    <style>
-    /* Styles CSS */
-    .dashboard-container {
-        margin: 20px auto;
-        max-width: 1200px;
-        padding: 30px;
-        background-color: #f9f9f9;
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
+        ?>
+        <style>
+        /* Styles CSS */
+        .dashboard-container {
+            margin: 20px auto;
+            max-width: 1200px;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    .dashboard-header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-    .dashboard-header h1 {
-        font-size: 32px;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
+        .dashboard-header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
 
-    .dashboard-header p {
-        font-size: 18px;
-        color: #555;
-    }
+        .dashboard-header p {
+            font-size: 18px;
+            color: #555;
+        }
 
-    .projet-card-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        margin-top: 30px;
-    }
+        .projet-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
 
-    .projet-card {
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 300px;
-        margin: 15px;
-        padding: 20px;
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
+        .projet-card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
 
-    .projet-card:hover {
-        transform: scale(1.05);
-    }
+        .projet-card:hover {
+            transform: scale(1.05);
+        }
 
-    .projet-card h3 {
-        font-size: 20px;
-        color: #2c3e50;
-        margin-bottom: 15px;
-    }
+        .projet-card h3 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
 
-    .projet-card p {
-        font-size: 14px;
-        color: #555;
-        margin-bottom: 15px;
-    }
+        .projet-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
 
-    .projet-card a {
-        display: inline-block;
-        margin-top: 10px;
-        padding: 10px 20px;
-        font-size: 14px;
-        color: white;
-        background-color: #4cd137;
-        text-decoration: none;
-        border-radius: 5px;
-    }
+        .projet-card a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: white;
+            background-color: #4cd137;
+            text-decoration: none;
+            border-radius: 5px;
+        }
 
-    .projet-card a:hover {
-        background-color: #44bd32;
-    }
+        .projet-card a:hover {
+            background-color: #44bd32;
+        }
 
-    .stats-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
 
-    .stat-box {
-        flex: 1;
-        background-color: #ffffff;
-        padding: 20px;
-        margin: 0 10px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
+        .stat-box {
+            flex: 1;
+            background-color: #ffffff;
+            padding: 20px;
+            margin: 0 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
 
-    .stat-box h3 {
-        margin: 10px 0;
-        font-size: 24px;
-        color: #2c3e50;
-    }
+        .stat-box h3 {
+            margin: 10px 0;
+            font-size: 24px;
+            color: #2c3e50;
+        }
 
-    .stat-box p {
-        margin: 0;
-        font-size: 16px;
-        color: #777;
-    }
+        .stat-box p {
+            margin: 0;
+            font-size: 16px;
+            color: #777;
+        }
 
-    .stat-icon {
-        font-size: 40px;
-        color: #4cd137;
-        margin-bottom: 10px;
-    }
+        .stat-icon {
+            font-size: 40px;
+            color: #4cd137;
+            margin-bottom: 10px;
+        }
 
-    .message {
-        text-align: center;
-        font-size: 16px;
-        color: green;
-        margin-bottom: 20px;
-    }
+        .message {
+            text-align: center;
+            font-size: 16px;
+            color: green;
+            margin-bottom: 20px;
+        }
 
-    .error-message {
-        text-align: center;
-        font-size: 16px;
-        color: red;
-        margin-bottom: 20px;
-    }
-    </style>
+        .error-message {
+            text-align: center;
+            font-size: 16px;
+            color: red;
+            margin-bottom: 20px;
+        }
+        </style>
 
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-        <h1>Dashboard (<?= $nom; ?> <?= $prenom; ?>)</h1>
-        <p>Bienvenue dans votre espace de gestion des projets et rendus.</p>
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+            <h1>Dashboard (<?= $nom; ?> <?= $prenom; ?>)</h1>
+            <p>Bienvenue dans votre espace de gestion des projets et rendus.</p>
         </div>
 
-        <?php if (isset($_SESSION['success'])): ?>
-        <div class="message"><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
-        <?php elseif (isset($_SESSION['error'])): ?>
-        <div class="error-message"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
-        <?php endif; ?>
+            <?php if (isset($_SESSION['success'])): ?>
+            <div class="message"><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
+            <?php elseif (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
 
-    <div class="stats-container">
-        <div class="stat-box">
-            <div class="stat-icon">🗂️</div>
-            <h3><?= htmlspecialchars($statistiques['livrables_total'] ?? 0); ?></h3>
-            <p>Livrables créés</p>
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-icon">🗂️</div>
+                <h3><?= htmlspecialchars($statistiques['livrables_total'] ?? 0); ?></h3>
+                <p>Livrables créés</p>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">📋</div>
+                <h3><?= htmlspecialchars($statistiques['rendus_total'] ?? 0); ?></h3>
+                <p>Rendus soumis</p>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon">✉️</div>
+                <h3><?= htmlspecialchars($statistiques['feedbacks_total'] ?? 0); ?></h3>
+                <p>Feedbacks donnés</p>
+            </div>
         </div>
-        <div class="stat-box">
-            <div class="stat-icon">📋</div>
-            <h3><?= htmlspecialchars($statistiques['rendus_total'] ?? 0); ?></h3>
-            <p>Rendus soumis</p>
-        </div>
-        <div class="stat-box">
-            <div class="stat-icon">✉️</div>
-            <h3><?= htmlspecialchars($statistiques['feedbacks_total'] ?? 0); ?></h3>
-            <p>Feedbacks donnés</p>
-        </div>
-    </div>
 
-    <div class="projet-card-container">
-        <?php if (!empty($projets)): ?>
-            <?php foreach ($projets as $projet): ?>
-                <div class="projet-card">
-                    <h3><?= htmlspecialchars($projet['titre'] ?? 'Titre non défini'); ?></h3>
-                    <p><?= htmlspecialchars($projet['description'] ?? 'Description non disponible' ); ?></p>
-                    <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-success">
-                        Voir le Projet
-                    </a>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>Aucun projet disponible.</p>
-        <?php endif; ?>
+        <div class="projet-card-container">
+            <?php if (!empty($projets)): ?>
+                <?php foreach ($projets as $projet): ?>
+                    <div class="projet-card">
+                        <h3><?= htmlspecialchars($projet['titre'] ?? 'Titre non défini'); ?></h3>
+                        <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-success">
+                            Voir le Projet
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Aucun projet disponible.</p>
+            <?php endif; ?>
+            </div>
         </div>
-    </div>
-    <?php
+        <?php
     }
 
-
-    public function form_creer_livrable($projets_responsable) {
+    public function form_creer_livrable($projets_responsable, $form_data = []) {
     ?>
         <style>
         .form-container {
@@ -300,38 +298,34 @@ class VueProfesseur extends VueGenerique {
         <form action="index.php?module=professeur&action=creer_livrable" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="titre">Titre :</label>
-                <input type="text" id="titre" name="titre" placeholder="Titre du livrable" required>
+                <input type="text" id="titre" name="titre" placeholder="Titre du livrable" value="<?= htmlspecialchars($form_data['titre'] ?? ''); ?>" required>
             </div>
             <div class="form-group">
                 <label for="description">Description :</label>
-                <textarea id="description" name="description" placeholder="Détaillez le contenu attendu" required></textarea>
+                <textarea id="description" name="description" placeholder="Détaillez le contenu attendu" required><?= htmlspecialchars($form_data['description'] ?? ''); ?></textarea>
             </div>
             <div class="form-group">
                 <label for="date_limite">Date Limite :</label>
-                <input type="date" id="date_limite" name="date_limite" required>
+                <input type="date" id="date_limite" name="date_limite" value="<?= htmlspecialchars($form_data['date_limite'] ?? ''); ?>" required>
             </div>
             <div class="form-group">
                 <label for="coefficient">Coefficient :</label>
-                <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" required>
+                <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" value="<?= htmlspecialchars($form_data['coefficient'] ?? ''); ?>" required>
             </div>
             <div class="form-group">
                 <label for="projet_id">Projet :</label>
                 <select id="projet_id" name="projet_id" required>
                     <option value="">Sélectionnez un projet</option>
                     <?php foreach ($projets_responsable as $projet): ?>
-                        <option value="<?= htmlspecialchars($projet['id_projet']); ?>">
+                        <option value="<?= htmlspecialchars($projet['id_projet']); ?>" <?= (isset($form_data['projet_id']) && $form_data['projet_id'] == $projet['id_projet']) ? 'selected' : ''; ?>>
                             <?= htmlspecialchars($projet['titre']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="isGroup">Est-ce un Rendu pour un groupe ?</label>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="isGroup" name="isIndividuel" value="0">
-                    <label for="isGroup">Coché = oui -> rendu groupé</label>
-                </div>
-                <!-- Si non coché, la valeur par défaut (individuel) sera gérée côté backend -->
+            <div class="form-group checkbox-container">
+                <input type="checkbox" id="is_group" name="is_group" <?= !empty($form_data['is_group']) ? 'checked' : ''; ?>>
+                <label for="is_group">Est-ce un rendu groupé ?</label>
             </div>
             <div class="form-group">
                 <label for="fichiers">Ajouter des fichiers :</label>
@@ -343,8 +337,127 @@ class VueProfesseur extends VueGenerique {
     <?php
     }
 
+    public function form_modifier_livrable($livrable, $projets_responsable) {
+    ?>
+        <style>
+        .form-container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .form-submit {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #4cd137;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #44bd32;
+        }
+        </style>
+
+        <div class="form-container">
+        <h1>Modifier le Livrable</h1>
+        <form action="index.php?module=professeur&action=valider_modification_livrable" method="POST">
+            <input type="hidden" name="id_livrable" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+
+            <div class="form-group">
+                <label for="titre">Titre :</label>
+                <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($livrable['titre_livrable']); ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" required><?= htmlspecialchars($livrable['description']); ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="date_limite">Date Limite :</label>
+                <input type="date" id="date_limite" name="date_limite" value="<?= htmlspecialchars($livrable['date_limite']); ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="coefficient">Coefficient :</label>
+                <input type="number" id="coefficient" name="coefficient" value="<?= htmlspecialchars($livrable['coefficient']); ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="projet_id">Projet :</label>
+                <select id="projet_id" name="projet_id" required>
+                    <?php foreach ($projets_responsable as $projet): ?>
+                        <option value="<?= htmlspecialchars($projet['id_projet']); ?>" <?= ($livrable['projet_id'] == $projet['id_projet']) ? 'selected' : ''; ?>>
+                            <?= htmlspecialchars($projet['titre']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="form-group checkbox-container">
+                <input type="checkbox" id="is_group" name="is_group" <?= !$livrable['isIndividuel'] ? 'checked' : ''; ?>>
+                <label for="is_group">Est-ce un rendu groupé ?</label>
+            </div>
+
+            <button type="submit" class="form-submit">Enregistrer les modifications</button>
+            </form>
+        </div>
+        <?php
+    }
+
     public function consulter_rendus($livrables, $rendus) {
-        ?>
+    ?>
         <style>
             .table-container {
                 margin: 20px auto;
@@ -456,6 +569,7 @@ class VueProfesseur extends VueGenerique {
             background: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-family: Arial, sans-serif;
         }
 
         .form-container h1 {
@@ -471,8 +585,9 @@ class VueProfesseur extends VueGenerique {
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-size: 14px;
+            font-weight: bold;
             color: #555;
         }
 
@@ -480,73 +595,97 @@ class VueProfesseur extends VueGenerique {
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            background-color: #f9f9f9;
+            transition: border 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #4cd137;
+            outline: none;
+        }
+
+        .form-group select[multiple] {
+            height: auto;
         }
 
         .form-submit {
             display: block;
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
             color: white;
             background-color: #4cd137;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
         }
 
         .form-submit:hover {
             background-color: #44bd32;
         }
-    </style>
+
+        .form-hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        </style>
+
         <div class="form-container">
-            <h1>Créer un Projet</h1>
-            <form action="index.php?module=professeur&action=creer_projet" method="POST">
-                <div class="form-group">
-                    <label for="titre">Titre :</label>
-                    <input type="text" id="titre" name="titre" placeholder="Titre du projet" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description :</label>
-                    <textarea id="description" name="description" placeholder="Détaillez le contenu du projet" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="semestre">Semestre :</label>
-                    <input type="number" id="semestre" name="semestre" placeholder="Numéro du semestre (ex : 1, 2, 3...)" required>
-                </div>
-                <div class="form-group">
-                    <label for="coefficient">Coefficient :</label>
-                    <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient du projet (ex : 1.0, 2.5...)" step="0.1" required>
-                </div>
-                <div class="form-group">
-                    <label for="promotions">Promotions :</label>
-                    <select id="promotions" name="promotions[]" multiple required>
-                        <?php foreach ($promotions as $promo): ?>
-                            <option value="<?= htmlspecialchars($promo['id_promo']); ?>">
-                                <?= htmlspecialchars($promo['nom_promo']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="responsables">Professeurs responsables :</label>
-                    <select id="responsables" name="responsables[]" multiple required>
-                        <?php foreach ($professeurs as $prof): ?>
-                            <option value="<?= $prof['id_utilisateur']; ?>">
-                                <?= htmlspecialchars($prof['nom'] . ' ' . $prof['prenom']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <button type="submit" class="form-submit">Créer le Projet</button>
-            </form>
+        <h1>Créer un Projet</h1>
+        <form action="index.php?module=professeur&action=creer_projet" method="POST">
+            <div class="form-group">
+                <label for="titre">Titre :</label>
+                <input type="text" id="titre" name="titre" placeholder="Titre du projet" required title="Entrez un titre pour le projet.">
+            </div>
+            <div class="form-group">
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" placeholder="Détaillez le contenu du projet" required style="min-height: 100px;" title="Entrez une description détaillée."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="semestre">Semestre :</label>
+                <input type="number" id="semestre" name="semestre" placeholder="Numéro du semestre (ex : 1, 2, 3...)" required title="Indiquez le semestre (numéro uniquement).">
+            </div>
+            <div class="form-group">
+                <label for="coefficient">Coefficient :</label>
+                <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient du projet (ex : 1.0, 2.5...)" step="0.1" required title="Indiquez le coefficient du projet.">
+            </div>
+            <div class="form-group">
+                <label for="promotions">Promotions :</label>
+                <select id="promotions" name="promotions[]" multiple required title="Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs promotions.">
+                    <?php foreach ($promotions as $promo): ?>
+                        <option value="<?= htmlspecialchars($promo['id_promo']); ?>">
+                            <?= htmlspecialchars($promo['nom_promo']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="form-hint">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs promotions.</p>
+            </div>
+            <div class="form-group">
+                <label for="responsables">Professeurs responsables :</label>
+                <select id="responsables" name="responsables[]" multiple required title="Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs professeurs.">
+                    <?php foreach ($professeurs as $prof): ?>
+                        <option value="<?= htmlspecialchars($prof['id_utilisateur']); ?>">
+                            <?= htmlspecialchars($prof['nom'] . ' ' . $prof['prenom']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="form-hint">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs professeurs.</p>
+            </div>
+            <button type="submit" class="form-submit">Créer le Projet</button>
+        </form>
         </div>
     <?php
     }
-
 
     public function form_modifier_projet($projet, $promotions, $responsables) {
     ?>
@@ -674,6 +813,106 @@ class VueProfesseur extends VueGenerique {
     <?php
     }
 
+    public function detail_livrable($livrable) {
+        // Vérification que le livrable contient les données nécessaires
+        if (!$livrable || empty($livrable['id_livrable'])) {
+            echo "<p style='color:red;'>Erreur : Livrable introuvable ou données incomplètes.</p>";
+            return;
+        }
+        ?>
+        <style>
+        .livrable-container {
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .livrable-container h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .livrable-container p {
+            font-size: 16px;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .livrable-container .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary {
+            background-color: #f39c12;
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        </style>
+
+        <div class="livrable-container">
+        <h1><?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
+        <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description'] ?? 'Non spécifiée'); ?></p>
+        <p><strong>Date limite :</strong> <?= htmlspecialchars($livrable['date_limite'] ?? 'Non définie'); ?></p>
+        <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient'] ?? 'Non défini'); ?></p>
+        <p><strong>Type :</strong> <?= $livrable['isIndividuel'] ? "Rendu Individuel" : "Rendu Groupé"; ?></p>
+        <?php if (!empty($livrable['projet_id'])): ?>
+            <p><strong>Projet :</strong> 
+                <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($livrable['projet_id']); ?>">
+                    Voir le projet associé
+                </a>
+            </p>
+        <?php else: ?>
+            <p><strong>Projet :</strong> Non assigné</p>
+        <?php endif; ?>
+
+        <div class="actions">
+            <a href="index.php?module=professeur&action=modifier_livrable&id_livrable=<?= htmlspecialchars($livrable['id_livrable']); ?>" class="btn btn-primary">
+                Modifier le livrable
+            </a>
+            <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($livrable['projet_id']); ?>" class="btn btn-secondary">
+                Retour au projet
+            </a>
+            <form action="index.php?module=professeur&action=supprimer_livrable" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce livrable ?');" style="display: inline;">
+                <input type="hidden" name="id_livrable" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
+                <button type="submit" class="btn btn-danger">Supprimer le livrable</button>
+            </form>
+        </div>
+        </div>
+        <?php
+    }
+
     public function detail_projet($projet, $livrables) {
     ?>
         <style>
@@ -707,30 +946,55 @@ class VueProfesseur extends VueGenerique {
             margin-bottom: 10px;
         }
 
-        .projet-container ul {
-            list-style-type: none;
-            padding: 0;
+        .projet-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .projet-container ul li {
-            background-color: #ffffff;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        .projet-container table th,
+        .projet-container table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
         }
 
-        .projet-container ul li ul {
-            margin-top: 10px;
-            list-style-type: disc;
-            padding-left: 20px;
+        .projet-container table th {
+            background-color: #4cd137;
+            color: white;
         }
 
-        .projet-container ul li ul li {
-            background: none;
-            box-shadow: none;
-            margin: 5px 0;
-            padding: 0;
+        .projet-container table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .projet-container table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-details {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .btn-details:hover {
+            text-decoration: underline;
         }
 
         .actions {
@@ -785,57 +1049,79 @@ class VueProfesseur extends VueGenerique {
         <p><strong>Semestre :</strong> <?= htmlspecialchars($projet['semestre']); ?></p>
         <p><strong>Coefficient :</strong> <?= htmlspecialchars($projet['coefficient']); ?></p>
         <p><strong>Responsables :</strong> 
-            <?php if (!empty($projet['responsables'])): ?>
-                <?= implode(', ', array_map(function ($resp) {
-                    return htmlspecialchars($resp['prenom'] . ' ' . $resp['nom']);
-                }, $projet['responsables'])); ?>
-            <?php else: ?>
-                Non spécifié
-            <?php endif; ?>
+            <?= implode(', ', array_map(function ($resp) {
+                return htmlspecialchars($resp['prenom'] . ' ' . $resp['nom']);
+            }, $projet['responsables'] ?? [])); ?>
         </p>
-
         <p><strong>Promotions :</strong> 
-            <?php if (!empty($projet['promotions'])): ?>
-                <?= implode(', ', array_map(function ($promo) {
-                    return htmlspecialchars($promo['nom_promo']);
-                }, $projet['promotions'])); ?>
-            <?php else: ?>
-                Non spécifié
-            <?php endif; ?>
+            <?= implode(', ', array_map(function ($promo) {
+                return htmlspecialchars($promo['nom_promo']);
+            }, $projet['promotions'] ?? [])); ?>
         </p>
 
-        <h2>Livrables associés</h2>
-        <ul>
-            <?php foreach ($livrables as $livrable): ?>
-                <li>
-                    <strong><?= htmlspecialchars($livrable['titre_livrable']); ?></strong> :
-                    <?= htmlspecialchars($livrable['description']); ?> (Date limite : <?= htmlspecialchars($livrable['date_limite']); ?>)
-                    <ul>
-                        <?php foreach ($livrable['fichiers'] as $fichier): ?>
-                            <li>
-                                <a href="<?= htmlspecialchars($fichier['chemin_fichier']); ?>" target="_blank">
-                                    <?= htmlspecialchars($fichier['nom_fichier']); ?>
+        <h2>Livrables Associés</h2>
+        <div class="filter-bar">
+            <input type="search" id="search-livrable" placeholder="Rechercher un livrable..." onkeyup="filterLivrables()">
+        </div>
+        <?php if (!empty($livrables)): ?>
+            <table id="livrables-table">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Date Limite</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($livrables as $livrable): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($livrable['titre_livrable']); ?></td>
+                            <td><?= htmlspecialchars($livrable['date_limite']); ?></td>
+                            <td>
+                                <a href="index.php?module=professeur&action=detail_livrable&id_livrable=<?= htmlspecialchars($livrable['id_livrable']); ?>" class="btn-details">
+                                    Détails
                                 </a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </li>
-            <?php endforeach; ?>
-        </ul>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>Aucun livrable associé à ce projet.</p>
+        <?php endif; ?>
+        </div>
 
         <div class="actions">
-            <a href="index.php?module=professeur&action=modifier_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-primary">
-                Modifier le projet
-            </a>
-            <a href="index.php?module=professeur&action=gestion_groupes&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-secondary">
-                Gestion des Groupes
-            </a>
-            <form action="index.php?module=professeur&action=supprimer_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" method="GET" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
-                <button type="submit" class="btn btn-danger">Supprimer le projet</button>
-            </form>
+        <a href="index.php?module=professeur&action=modifier_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-primary">
+            Modifier le projet
+        </a>
+        <a href="index.php?module=professeur&action=gestion_groupes&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-secondary">
+            Gestion des Groupes
+        </a>
+        <form action="index.php?module=professeur&action=supprimer_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+            <button type="submit" class="btn btn-danger">Supprimer le projet</button>
+        </form>
         </div>
-        </div>
-    <?php
+
+        <script>
+        function filterLivrables() {
+            const searchInput = document.getElementById('search-livrable').value.toLowerCase();
+            const table = document.getElementById('livrables-table');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const titre = rows[i].getElementsByTagName('td')[0]?.textContent.toLowerCase() || '';
+                const dateLimite = rows[i].getElementsByTagName('td')[1]?.textContent.toLowerCase() || '';
+
+                if (titre.includes(searchInput) || dateLimite.includes(searchInput)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+        </script>
+        <?php
     }
 
 
@@ -1176,7 +1462,9 @@ class VueProfesseur extends VueGenerique {
 
     public function confirm_creer_livrable() {
         echo "<p style='color: green; text-align: center;'>Le livrable a été créé avec succès.</p>";
+        echo "<a href='index.php?module=professeur&action=form_creer_livrable' style='display: block; text-align: center; margin-top: 20px;'>Créer un autre livrable</a>";
     }
+
 
     public function confirm_ajouter_feedback() {
         echo "<p style='color: green; text-align: center;'>Le feedback a été ajouté avec succès.</p>";
