@@ -43,10 +43,20 @@ class VueProfesseur extends VueGenerique {
         <?php
     }
 
-public function dashboard($professeur_info, $statistiques, $projets) { 
+    public function dashboard($professeur_info, $statistiques, $projets) { 
         $nom = htmlspecialchars($professeur_info['nom'] ?? 'Inconnu');
         $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
         $professeur_id = htmlspecialchars($professeur_info['id_utilisateur'] ?? 'Inconnu');
+        $_SESSION['professeur_id'] = $professeur_id;
+        ?>
+        <?php
+        if (isset($_SESSION['professeur_id'])) {
+        $professeur_id = $_SESSION['professeur_id'];
+        } else {
+        // Gérer le cas où l'ID du professeur n'est pas disponible dans la session
+        echo 'Professeur non connecté';
+        exit;
+        }
         ?>
         <style>
         /* Styles CSS */
@@ -348,8 +358,9 @@ public function dashboard($professeur_info, $statistiques, $projets) {
     <?php
     }
 
-    public function form_modifier_livrable($livrable, $projets_responsable) {
-    ?>
+    public function form_modifier_livrable($livrable, $fichiers,$projets_responsable) {
+        $this->menu();
+        ?>
         <style>
         .form-container {
             margin: 20px auto;
@@ -376,6 +387,19 @@ public function dashboard($professeur_info, $statistiques, $projets) {
             margin-bottom: 5px;
             font-size: 14px;
             color: #555;
+        }
+
+        .form-group ul {
+            list-style-type: none;
+            padding-left: 0;
+        } 
+
+        .form-group ul li {
+            margin-bottom: 15px;
+        }
+
+        .form-group ul li div {
+            margin-top: 10px;
         }
 
         .form-group input,
@@ -422,47 +446,68 @@ public function dashboard($professeur_info, $statistiques, $projets) {
 
         <div class="form-container">
         <h1>Modifier le Livrable</h1>
-        <form action="index.php?module=professeur&action=valider_modification_livrable" method="POST">
-            <input type="hidden" name="id_livrable" value="<?= htmlspecialchars($livrable['id_livrable']); ?>">
-
+        <form action="index.php?module=professeur&action=modifier_livrable&id_livrable=<?= htmlspecialchars($livrable['id_livrable']); ?>" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="titre">Titre :</label>
                 <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($livrable['titre_livrable']); ?>" required>
             </div>
-
             <div class="form-group">
                 <label for="description">Description :</label>
                 <textarea id="description" name="description" required><?= htmlspecialchars($livrable['description']); ?></textarea>
             </div>
-
             <div class="form-group">
                 <label for="date_limite">Date Limite :</label>
                 <input type="date" id="date_limite" name="date_limite" value="<?= htmlspecialchars($livrable['date_limite']); ?>" required>
             </div>
-
             <div class="form-group">
                 <label for="coefficient">Coefficient :</label>
                 <input type="number" id="coefficient" name="coefficient" value="<?= htmlspecialchars($livrable['coefficient']); ?>" required>
             </div>
-
             <div class="form-group">
                 <label for="projet_id">Projet :</label>
                 <select id="projet_id" name="projet_id" required>
                     <?php foreach ($projets_responsable as $projet): ?>
-                        <option value="<?= htmlspecialchars($projet['id_projet']); ?>" <?= ($livrable['projet_id'] == $projet['id_projet']) ? 'selected' : ''; ?>>
+                        <option value="<?= htmlspecialchars($projet['id_projet']); ?>" <?= $livrable['projet_id'] == $projet['id_projet'] ? 'selected' : ''; ?>>
                             <?= htmlspecialchars($projet['titre']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
-
             <div class="form-group checkbox-container">
-                <input type="checkbox" id="is_group" name="is_group" <?= !$livrable['isIndividuel'] ? 'checked' : ''; ?>>
+                <input type="checkbox" id="is_group" name="is_group" <?= $livrable['isIndividuel'] == 0 ? 'checked' : ''; ?>>
                 <label for="is_group">Est-ce un rendu groupé ?</label>
             </div>
+            
+            <!-- Section pour les fichiers -->
+            <div class="form-group">
+                <h3>Fichiers Actuels :</h3>
+                <?php if (!empty($fichiers)): ?>
+                    <ul>
+                        <?php foreach ($fichiers as $fichier): ?>
+                            <li style="margin-bottom: 15px;">
+                                <span><?= htmlspecialchars($fichier['nom_fichier']); ?></span>
+                                <div style="margin-top: 10px;">
+                                    <a href="<?= htmlspecialchars($fichier['chemin_fichier']); ?>" target="_blank" style="display: block; margin-bottom: 5px;">Télécharger</a>
+                                    <label>
+                                        Supprimer le fichier 
+                                        <input type="checkbox" name="fichiers_supprimes[]" value="<?= $fichier['id_fichier']; ?>" style="margin-right: 5px;">
+                                    </label>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p>Aucun fichier associé.</p>
+                <?php endif; ?>
+            </div>
 
-            <button type="submit" class="form-submit">Enregistrer les modifications</button>
-            </form>
+            <div class="form-group">
+                <label for="fichiers">Ajouter de nouveaux fichiers :</label>
+                <input type="file" id="fichiers" name="fichiers[]" multiple>
+            </div>
+            
+            <button type="submit" class="form-submit">Modifier le Livrable</button>
+        </form>
         </div>
         <?php
     }
@@ -805,10 +850,6 @@ public function dashboard($professeur_info, $statistiques, $projets) {
                 <p>Utilisez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs promotions.</p>
             </div>
 
-
-
-
-
             <div class="form-group">
                 <label for="responsables">Responsables :</label>
                 <select id="responsables" name="responsables[]" multiple required>
@@ -828,11 +869,11 @@ public function dashboard($professeur_info, $statistiques, $projets) {
     <?php
     }
 
-    public function detail_livrable($livrable) {
+    public function detail_livrable($livrable, $fichiers) {
         // Vérification que le livrable contient les données nécessaires
         if (!$livrable || empty($livrable['id_livrable'])) {
-            echo "<p style='color:red;'>Erreur : Livrable introuvable ou données incomplètes.</p>";
-            return;
+        echo "<p style='color:red;'>Erreur : Livrable introuvable ou données incomplètes.</p>";
+        return;
         }
         ?>
         <style>
@@ -894,6 +935,28 @@ public function dashboard($professeur_info, $statistiques, $projets) {
         .btn-primary:hover {
             background-color: #2980b9;
         }
+
+        .files-list {
+            margin-top: 20px;
+        }
+
+        .files-list ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .files-list ul li {
+            margin-bottom: 15px;
+        }
+
+        .files-list a {
+            text-decoration: none;
+            color: #3498db;
+        }
+
+        .files-list a:hover {
+            text-decoration: underline;
+        }
         </style>
 
         <?php $this->menu(); ?>
@@ -913,6 +976,25 @@ public function dashboard($professeur_info, $statistiques, $projets) {
             <p><strong>Projet :</strong> Non assigné</p>
         <?php endif; ?>
 
+        <!-- Section pour les fichiers -->
+        <div class="files-list">
+            <h3>Fichiers Actuels :</h3>
+            <?php if (!empty($fichiers)): ?>
+                <ul>
+                    <?php foreach ($fichiers as $fichier): ?>
+                        <li>
+                            <a href="<?= htmlspecialchars($fichier['chemin_fichier']); ?>" target="_blank">
+                                <?= htmlspecialchars($fichier['nom_fichier']); ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Pas de fichiers associés pour ce livrable.</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Boutons d'action -->
         <div class="actions">
             <a href="index.php?module=professeur&action=modifier_livrable&id_livrable=<?= htmlspecialchars($livrable['id_livrable']); ?>" class="btn btn-primary">
                 Modifier le livrable
@@ -928,6 +1010,7 @@ public function dashboard($professeur_info, $statistiques, $projets) {
         </div>
         <?php
     }
+
 
     public function detail_projet($projet, $livrables) {
     ?>
@@ -1111,11 +1194,15 @@ public function dashboard($professeur_info, $statistiques, $projets) {
         <a href="index.php?module=professeur&action=modifier_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-primary">
             Modifier le projet
         </a>
+
+
+
+      
         <a href="index.php?module=professeur&action=gestion_evaluations&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>&id_professeur=<?= htmlspecialchars($professeur_id); ?>" class="btn btn-secondary">
             Gestion des Evaluations
         </a>
-        <a href="index.php?module=professeur&action=gestion_groupes&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-secondary">
-            Gestion des Groupes
+        <a href="index.php?module=professeur&action=gestion_evaluations&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>&id_professeur=<?= htmlspecialchars($professeur_id); ?>" class="btn btn-secondary">
+             Gestion des évaluations
         </a>
         <form action="index.php?module=professeur&action=supprimer_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
             <button type="submit" class="btn btn-danger">Supprimer le projet</button>
