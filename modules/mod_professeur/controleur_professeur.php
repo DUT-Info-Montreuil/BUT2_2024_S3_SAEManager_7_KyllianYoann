@@ -200,6 +200,8 @@ class ControleurProfesseur {
         }
 
         // Afficher la vue pour les détails du livrable
+        $fichiers = $this->modele->get_fichiers_livrable($id_livrable);
+        $rendus = $this->modele->getRendusByLivrable($id_livrable) ?? [];
         $this->vue->menu();
         $this->vue->detail_livrable($livrable, $fichiers); // Ce passage cause l'erreur
     }
