@@ -38,7 +38,6 @@ class VueProfesseur extends VueGenerique {
             <a href="index.php?module=professeur&action=dashboard" class="active">Dashboard</a>
             <a href="index.php?module=professeur&action=form_creer_projet">Créer un Projet</a>
             <a href="index.php?module=professeur&action=form_creer_livrable">Créer un Livrable</a>
-            <a href="index.php?module=professeur&action=consulter_rendus">Consulter les Rendus</a>
             <a href="index.php?module=connexion&action=deconnexion">Déconnexion</a>
         </nav>
         <?php
@@ -881,6 +880,7 @@ class VueProfesseur extends VueGenerique {
         }
         </style>
 
+        <?php $this->menu(); ?>
         <div class="livrable-container">
         <h1><?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
         <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description'] ?? 'Non spécifiée'); ?></p>
