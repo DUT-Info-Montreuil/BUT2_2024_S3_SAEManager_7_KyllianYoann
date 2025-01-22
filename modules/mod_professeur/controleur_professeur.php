@@ -58,6 +58,9 @@ class ControleurProfesseur {
         case "gestion_groupes":
             $this->gestion_groupes();
             break;
+        case "gestion_evaluations":
+            $this->gestion_evaluations();
+            break;
         case "creer_groupe":
             $this->creer_groupe();
             break;
@@ -147,33 +150,28 @@ class ControleurProfesseur {
     }
 
     public function detail_livrable() {
-        $this->vue->menu();
         // Vérifier si un identifiant de livrable est passé
         $id_livrable = $_GET['id_livrable'] ?? null;
-
         if (!$id_livrable) {
             $_SESSION['error'] = "Aucun identifiant de livrable fourni.";
             header("Location: index.php?module=professeur&action=dashboard");
             exit();
         }
-
         // Récupérer les détails du livrable à partir du modèle
         $livrable = $this->modele->get_livrable($id_livrable);
-
         if (!$livrable) {
             $_SESSION['error'] = "Livrable introuvable.";
             header("Location: index.php?module=professeur&action=dashboard");
             exit();
         }
-
         // Afficher la vue pour les détails du livrable
+        $this->vue->menu();
         $this->vue->detail_livrable($livrable);
     }
     
     private function form_creer_livrable() {
         // Récupérer les projets pour lesquels le professeur est responsable
         $projets_responsable = $this->modele->get_projets_responsable($_SESSION['utilisateur_id']);
-    
         // Afficher le menu et appeler la vue correspondante
         $this->vue->menu();
         $this->vue->form_creer_livrable($projets_responsable);
@@ -282,13 +280,11 @@ class ControleurProfesseur {
         $description = $_POST['description'] ?? null;
         $date_limite = $_POST['date_limite'] ?? null;
         $coefficient = $_POST['coefficient'] ?? null;
-        $projet_id = $_POST['projet_id'] ?? null;
-
-        // Déterminer si le livrable est individuel ou groupé
+        $projet_titre = $_POST['projet_titre'] ?? null; // Titre du projet sélectionné
         $isIndividuel = isset($_POST['is_group']) ? 0 : 1;
 
         // Validation des champs obligatoires
-        if (!$titre || !$description || !$date_limite || !$coefficient || !$projet_id) {
+        if (!$titre || !$description || !$date_limite || !$coefficient || !$projet_titre) {
         $_SESSION['error'] = "Tous les champs sont obligatoires.";
         // Pré-remplir le formulaire en cas d'erreur
         $form_data = [
@@ -296,13 +292,22 @@ class ControleurProfesseur {
             'description' => $description,
             'date_limite' => $date_limite,
             'coefficient' => $coefficient,
-            'projet_id' => $projet_id,
+            'projet_titre' => $projet_titre,
             'is_group' => !$isIndividuel, // Si ce n'est pas individuel, le checkbox doit être coché
         ];
         $this->form_creer_livrable($this->modele->get_projets_responsable($_SESSION['utilisateur_id']), $form_data);
         return;
         }
 
+        // Récupération de l'id_projet via le titre
+        $projet = $this->modele->get_projet_par_titre($projet_titre);
+        if (!$projet) {
+            $_SESSION['error'] = "Projet introuvable.";
+            header("Location: index.php?module=professeur&action=creer_livrable");
+            exit();
+        }
+        $projet_id = $projet['id_projet'];
+    
         // Ajout du livrable dans la base de données
         $id_livrable = $this->modele->creer_livrable($titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id);
         if ($id_livrable) {
@@ -312,7 +317,8 @@ class ControleurProfesseur {
         }
         // Confirmation de création réussie
         $_SESSION['success'] = "Livrable créé avec succès.";
-        $this->confirm_creer_livrable();
+        header("Location: index.php?module=professeur&action=liste_livrables&projet_id=" . $projet_id);
+        exit();
         } else {
         // Gestion des erreurs
         $_SESSION['error'] = "Erreur lors de la création du livrable.";
@@ -322,12 +328,13 @@ class ControleurProfesseur {
             'description' => $description,
             'date_limite' => $date_limite,
             'coefficient' => $coefficient,
-            'projet_id' => $projet_id,
+            'projet_titre' => $projet_titre,
             'is_group' => !$isIndividuel,
         ];
         $this->form_creer_livrable($this->modele->get_projets_responsable($_SESSION['utilisateur_id']), $form_data);
         }
     }
+
 
     public function confirm_creer_livrable() {
         $this->vue->menu();
@@ -368,6 +375,8 @@ class ControleurProfesseur {
         $this->vue->menu();
         $this->vue->form_modifier_projet($projet, $promotions, $responsables); // Appeler la vue avec les données
     }
+
+   
 
     private function mettre_a_jour_projet() {
         if (!isset($_SESSION['utilisateur_id'])) {
@@ -416,19 +425,17 @@ class ControleurProfesseur {
     }
 
     private function upload_fichiers($id_livrable, $fichiers) {
-        $upload_dir = "uploads/livrables/";
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
+        foreach ($fichiers['name'] as $index => $nom_fichier) {
+        // Chemin pour sauvegarder les fichiers
+        $chemin_fichier = "uploads/livrables/" . uniqid() . "_" . basename($nom_fichier);
 
-        for ($i = 0; $i < count($fichiers['name']); $i++) {
-        $nom_fichier = basename($fichiers['name'][$i]);
-        $chemin_fichier = $upload_dir . uniqid() . "_" . $nom_fichier;
-
-        if (move_uploaded_file($fichiers['tmp_name'][$i], $chemin_fichier)) {
+        // Déplacement du fichier téléchargé
+        if (move_uploaded_file($fichiers['tmp_name'][$index], $chemin_fichier)) {
+            // Appeler la méthode du modèle pour associer le fichier au livrable
             $this->modele->ajouter_fichier_livrable($id_livrable, $nom_fichier, $chemin_fichier);
-            } else {
-            $_SESSION['error'] = "Erreur lors de l'upload du fichier : " . $nom_fichier;
+        } else {
+            // Gérer les erreurs si le fichier n'est pas déplacé correctement
+            $_SESSION['error'] = "Erreur lors du téléchargement du fichier : $nom_fichier";
             }
         }
     }
@@ -453,6 +460,28 @@ class ControleurProfesseur {
         // Afficher la vue
         $this->vue->menu();
         $this->vue->gestion_groupes($id_projet, $etudiants, $groupes);
+    }
+
+      private function gestion_evaluations() {
+        $id_projet = $_GET['id_projet'] ?? null;
+        if (!$id_projet) {
+            die("Projet non spécifié !");
+        }
+
+        // Vérifie si le professeur connecté est responsable de ce projet
+        $responsable = $this->modele->est_responsable_projet($id_projet, $_SESSION['utilisateur_id']);
+        if (!$responsable) {
+            die("Accès non autorisé. (Vérification responsable)");
+        }
+
+        // Récupérer les étudiants des promotions du projet
+        $etudiants = $this->modele->get_etudiants_promotions($id_projet);
+        // Récupérer les groupes existants pour ce projet
+        $groupes = $this->modele->get_groupes_par_projet($id_projet);
+
+        // Afficher la vue
+        $this->vue->menu();
+        $this->vue->gestion_evaluations($id_projet, $etudiants, $groupes);
     }
 
     private function creer_groupe() {
