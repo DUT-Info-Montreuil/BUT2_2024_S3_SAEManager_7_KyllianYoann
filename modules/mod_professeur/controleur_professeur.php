@@ -112,6 +112,41 @@ class ControleurProfesseur {
         case 'creer_evaluation':
             $this->creer_evaluation();
             break;
+        case "detail_evaluation":
+            if (isset($_GET['id_evaluation'])) {
+                $id_evaluation = intval($_GET['id_evaluation']);
+                $this->detail_evaluation($id_evaluation);
+            } else {
+                $_SESSION['error'] = "ID de l'évaluation manquant.";
+                header("Location: index.php?module=professeur&action=dashboard");
+            }
+            break;
+        case "form_modifier_evaluation":
+            if (isset($_GET['id_evaluation'])) {
+                $id_evaluation = intval($_GET['id_evaluation']);
+                $this->form_modifier_evaluation($id_evaluation);
+            } else {
+                $_SESSION['error'] = "ID de l'évaluation manquant.";
+                header("Location: index.php?module=professeur&action=dashboard");
+            }
+            break;
+        case "modifier_evaluation":
+            if (isset($_POST['id_evaluation'])) {
+                $this->modifier_evaluation($_POST);
+            } else {
+                $_SESSION['error'] = "ID de l'évaluation manquant.";
+                header("Location: index.php?module=professeur&action=dashboard");
+            }
+            break;
+        case "supprimer_evaluation":
+            if (isset($_GET['id_evaluation'])) {
+                $id_evaluation = intval($_GET['id_evaluation']);
+                $this->supprimer_evaluation($id_evaluation);
+            } else {
+                $_SESSION['error'] = "ID de l'évaluation manquant.";
+                header("Location: index.php?module=professeur&action=dashboard");
+            }
+            break;
         default:
             die("Action inexistante : " . htmlspecialchars($this->action));
         }
@@ -692,6 +727,58 @@ class ControleurProfesseur {
         }
 
         header("Location: index.php?module=professeur&action=gestion_evaluations&id_projet=" . $data['id_projet']);
+        exit();
+    }
+
+    public function detail_evaluation() {
+        $id_evaluation = $_GET['id_evaluation'] ?? null;
+
+        if (!$id_evaluation) {
+            $_SESSION['error'] = "ID de l'évaluation manquant.";
+            header("Location: index.php?module=professeur&action=gestion_evaluations");
+            exit();
+        }
+        $evaluation = $this->modele->get_evaluation($id_evaluation);
+        if (!$evaluation) {
+            $_SESSION['error'] = "Évaluation introuvable.";
+            header("Location: index.php?module=professeur&action=gestion_evaluations");
+            exit();
+        }
+        $this->vue->menu();
+        $this->vue->detail_evaluation($evaluation);
+    }
+
+    public function form_modifier_evaluation() {
+        $id_evaluation = $_GET['id_evaluation'] ?? null;
+        if (!$id_evaluation) {
+            $_SESSION['error'] = "ID de l'évaluation manquant.";
+            header("Location: index.php?module=professeur&action=gestion_evaluations");
+            exit();
+        }
+        $evaluation = $this->modele->get_evaluation($id_evaluation);
+        if (!$evaluation) {
+            $_SESSION['error'] = "Évaluation introuvable.";
+            header("Location: index.php?module=professeur&action=gestion_evaluations");
+            exit();
+        }
+        $this->vue->menu();
+        $this->vue->form_modifier_evaluation($evaluation);
+    }
+
+    public function supprimer_evaluation() {
+        $id_evaluation = $_GET['id_evaluation'] ?? null;
+
+        if (!$id_evaluation) {
+            $_SESSION['error'] = "ID de l'évaluation manquant.";
+            header("Location: index.php?module=professeur&action=gestion_evaluations");
+            exit();
+        }
+        if ($this->modele->supprimer_evaluation($id_evaluation)) {
+            $_SESSION['success'] = "Évaluation supprimée avec succès.";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la suppression de l'évaluation.";
+        }
+        header("Location: index.php?module=professeur&action=gestion_evaluations");
         exit();
     }
 }
