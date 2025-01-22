@@ -26,26 +26,27 @@ class ModeleProfesseur extends Connexion {
 
     public function modifier_livrable($id_livrable, $titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id) {
         try {
-            $req = "UPDATE Livrable 
-                    SET titre_livrable = :titre, 
-                        description = :description, 
-                        date_limite = :date_limite, 
-                        coefficient = :coefficient, 
-                        isIndividuel = :isIndividuel, 
-                        projet_id = :projet_id
-                    WHERE id_livrable = :id_livrable";
-            $stmt = self::$bdd->prepare($req);
-            return $stmt->execute([
-                'id_livrable' => $id_livrable,
-                'titre' => $titre,
-                'description' => $description,
-                'date_limite' => $date_limite,
-                'coefficient' => $coefficient,
-                'isIndividuel' => $isIndividuel,
-                'projet_id' => $projet_id
-            ]);
-        } catch (Exception $e) {
-            return false;
+        $req = "UPDATE Livrable 
+                SET titre_livrable = :titre, 
+                    description = :description, 
+                    date_limite = :date_limite, 
+                    coefficient = :coefficient, 
+                    isIndividuel = :isIndividuel, 
+                    projet_id = :projet_id
+                WHERE id_livrable = :id_livrable";
+        $stmt = self::$bdd->prepare($req);
+        return $stmt->execute([
+            'id_livrable' => $id_livrable,
+            'titre' => $titre,
+            'description' => $description,
+            'date_limite' => $date_limite,
+            'coefficient' => $coefficient,
+            'isIndividuel' => $isIndividuel,
+            'projet_id' => $projet_id
+        ]);
+        } catch (PDOException $e) {
+        error_log("Erreur dans modifier_livrable : " . $e->getMessage());
+        return false;
         }
     }
 
@@ -248,7 +249,17 @@ class ModeleProfesseur extends Connexion {
         }
     } 
 
-    
+    public function supprimer_fichier($id_fichier) {
+        try {
+        $req = "DELETE FROM Fichier WHERE id_fichier = :id_fichier";
+        $stmt = self::$bdd->prepare($req);
+        return $stmt->execute(['id_fichier' => $id_fichier]);
+        } catch (PDOException $e) {
+        error_log("Erreur dans supprimer_fichier : " . $e->getMessage());
+        return false;
+        }
+    }
+
     public function ajouter_feedback($rendu_id, $feedback) {
         $req = "INSERT INTO Feedback (rendu_id, contenu) VALUES (:rendu_id, :contenu)";
         $stmt = self::$bdd->prepare($req);
@@ -318,6 +329,33 @@ class ModeleProfesseur extends Connexion {
             return false;
         }
     }
+    public function get_professeur_id_by_projet($id_projet) {
+    try {
+        // Requête SQL pour obtenir l'ID du professeur associé au projet
+        $req = "SELECT responsable_id FROM Projet WHERE id_projet = :id_projet";
+        
+        // Préparer la requête SQL
+        $stmt = self::$bdd->prepare($req);
+        
+        // Exécuter la requête avec l'ID du projet comme paramètre
+        $stmt->execute(['id_projet' => $id_projet]);
+        
+        // Récupérer le résultat de la requête
+        $projet = $stmt->fetch();
+
+        // Si un projet est trouvé, renvoyer l'ID du professeur
+        if ($projet) {
+            return $projet['professeur_id'];  // Retourne l'ID du professeur associé au projet
+        }
+
+        // Si aucun projet n'est trouvé, retourner false
+        return false;
+    } catch (Exception $e) {
+        // Gérer les erreurs, ici on peut simplement retourner false
+        return false;
+    }
+}
+
 
     public function get_projet_par_titre($titre) {
         try {
@@ -481,12 +519,18 @@ class ModeleProfesseur extends Connexion {
         }
     }
 
-    private function get_fichiers_livrable($id_livrable) {
+    public function get_fichiers_livrable($id_livrable) {
+        try {
         $req = "SELECT * FROM Fichier WHERE id_livrable = :id_livrable";
         $stmt = self::$bdd->prepare($req);
         $stmt->execute(['id_livrable' => $id_livrable]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+        error_log("Erreur dans get_fichiers_livrable : " . $e->getMessage());
+        return [];
+        }
     }
+
 
     public function get_projets_responsable($id_professeur) {
         $req = "SELECT Projet.id_projet, Projet.titre 
