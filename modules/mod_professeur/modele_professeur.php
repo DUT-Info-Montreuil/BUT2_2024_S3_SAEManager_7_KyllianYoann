@@ -2,19 +2,58 @@
 
 class ModeleProfesseur extends Connexion {
 
-    public function creer_livrable($titre, $description, $date_limite, $coefficient, $isIndividuel) {
+    public function creer_livrable($titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id) {
         try {
-            $req = "INSERT INTO Livrable (titre_livrable, description, date_limite, coefficient, isIndividuel) 
-                    VALUES (:titre, :description, :date_limite, :coefficient, :isIndividuel)";
+            $req = "INSERT INTO Livrable (titre_livrable, description, date_limite, coefficient, isIndividuel, projet_id) 
+                    VALUES (:titre, :description, :date_limite, :coefficient, :isIndividuel, :projet_id)";
             $stmt = self::$bdd->prepare($req);
             $stmt->execute([
                 "titre" => $titre,
                 "description" => $description,
                 "date_limite" => $date_limite,
                 "coefficient" => $coefficient,
-                "isIndividuel" => $isIndividuel
+                "isIndividuel" => $isIndividuel,
+                "projet_id" => $projet_id
             ]);
             return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function modifier_livrable($id_livrable, $titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id) {
+        try {
+            $req = "UPDATE Livrable 
+                    SET titre_livrable = :titre, 
+                        description = :description, 
+                        date_limite = :date_limite, 
+                        coefficient = :coefficient, 
+                        isIndividuel = :isIndividuel, 
+                        projet_id = :projet_id
+                    WHERE id_livrable = :id_livrable";
+            $stmt = self::$bdd->prepare($req);
+            return $stmt->execute([
+                'id_livrable' => $id_livrable,
+                'titre' => $titre,
+                'description' => $description,
+                'date_limite' => $date_limite,
+                'coefficient' => $coefficient,
+                'isIndividuel' => $isIndividuel,
+                'projet_id' => $projet_id
+            ]);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function supprimer_livrable($id_livrable) {
+        try {
+            $req = "DELETE FROM Livrable WHERE id_livrable = :id_livrable";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->bindParam(':id_livrable', $id_livrable, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->rowCount() > 0; // Retourne true si au moins une ligne est supprimée
         } catch (Exception $e) {
             return false;
         }
@@ -44,15 +83,39 @@ class ModeleProfesseur extends Connexion {
         }
     }
 
-
     public function supprimer_projet($id_projet) {
         try {
+            // Supprimer les relations (groupes, livrables, etc.) associées au projet
             $this->supprimer_promotions_projet($id_projet);
             $this->supprimer_responsables_projet($id_projet);
 
+            // Supprimer le projet
             $req = "DELETE FROM Projet WHERE id_projet = :id_projet";
             $stmt = self::$bdd->prepare($req);
-            return $stmt->execute(['id_projet' => $id_projet]);
+            $stmt->bindParam(':id_projet', $id_projet, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function supprimer_promotions_projet($id_projet) {
+        try {
+            $req = "DELETE FROM Projet_Promotion WHERE id_projet = :id_projet";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_projet' => $id_projet]);
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function supprimer_responsables_projet($id_projet) {
+        try {
+            $req = "DELETE FROM Responsable_Projet WHERE id_projet = :id_projet";
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_projet' => $id_projet]);
+            return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             return false;
         }
@@ -75,8 +138,6 @@ class ModeleProfesseur extends Connexion {
         ]);
     }
 
-
-
     public function associer_projet_promotion($id_projet, $id_promo) {
         try {
             $req = "INSERT INTO Projet_Promotion (id_projet, id_promo) VALUES (:id_projet, :id_promo)";
@@ -91,7 +152,6 @@ class ModeleProfesseur extends Connexion {
         }
     }
 
-
     public function associer_projet_responsable($id_projet, $id_professeur) {
         try {
             $req = "INSERT INTO Responsable_Projet (id_projet, id_professeur) VALUES (:id_projet, :id_professeur)";
@@ -100,28 +160,6 @@ class ModeleProfesseur extends Connexion {
                 'id_projet' => $id_projet,
                 'id_professeur' => $id_professeur
             ]);
-            return $stmt->rowCount() > 0;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
-    public function supprimer_promotions_projet($id_projet) {
-        try {
-            $req = "DELETE FROM Projet_Promotion WHERE id_projet = :id_projet";
-            $stmt = self::$bdd->prepare($req);
-            $stmt->execute(['id_projet' => $id_projet]);
-            return $stmt->rowCount() > 0;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
-    public function supprimer_responsables_projet($id_projet) {
-        try {
-            $req = "DELETE FROM Responsable_Projet WHERE id_projet = :id_projet";
-            $stmt = self::$bdd->prepare($req);
-            $stmt->execute(['id_projet' => $id_projet]);
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             return false;
@@ -240,6 +278,41 @@ class ModeleProfesseur extends Connexion {
     //      GETTERS    //
     /////////////////////
 
+    public function get_livrable($id_livrable) {
+    try {
+            // Validation de l'entrée pour s'assurer que l'identifiant est valide
+            if (!is_numeric($id_livrable) || $id_livrable <= 0) {
+                throw new Exception("Identifiant de livrable invalide.");
+            }
+            // Requête SQL pour récupérer les informations du livrable
+            $req = "SELECT 
+                    id_livrable, 
+                    titre_livrable, 
+                    description, 
+                    date_limite, 
+                    coefficient, 
+                    isIndividuel, 
+                    projet_id 
+                FROM Livrable 
+                WHERE id_livrable = :id_livrable";
+            // Préparation et exécution de la requête
+            $stmt = self::$bdd->prepare($req);
+            $stmt->execute(['id_livrable' => $id_livrable]);
+            // Récupération des données sous forme de tableau associatif
+            $livrable = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Vérification si le livrable existe
+            if (!$livrable) {
+                throw new Exception("Livrable introuvable avec l'ID : $id_livrable.");
+            }
+            return $livrable;
+        } catch (Exception $e) {
+            // Log de l'erreur pour faciliter le débogage
+            error_log("Erreur dans get_livrable: " . $e->getMessage());
+            // Retourne `null` en cas d'erreur
+            return null;
+        }
+    }
+
     public function get_projet($id_projet) {
         try {
             $req = "SELECT * FROM Projet WHERE id_projet = :id_projet";
@@ -265,14 +338,12 @@ class ModeleProfesseur extends Connexion {
     public function get_etudiants_promotions($id_projet) {
         // Récupérer les étudiants déjà assignés
         $etudiants_assignes = $this->get_etudiants_assignes($id_projet);
-
         // Construire une clause `NOT IN` uniquement si des étudiants sont déjà assignés
         $clause_exclusion = "";
         if (!empty($etudiants_assignes)) {
             $placeholders = implode(',', array_fill(0, count($etudiants_assignes), '?'));
             $clause_exclusion = "AND u.id_utilisateur NOT IN ($placeholders)";
         }
-
         // Construire la requête SQL
         $req = "SELECT u.id_utilisateur, u.nom, u.prenom 
                 FROM Utilisateur u
@@ -280,19 +351,15 @@ class ModeleProfesseur extends Connexion {
                 JOIN Projet_Promotion pp ON pu.id_promo = pp.id_promo
                 WHERE pp.id_projet = ? 
                 AND u.role = 'etudiant' $clause_exclusion";
-
         // Préparer la requête
         $stmt = self::$bdd->prepare($req);
-
         // Préparer les paramètres pour `execute`
         $params = [$id_projet];
         if (!empty($etudiants_assignes)) {
             $params = array_merge($params, $etudiants_assignes);
         }
-
         // Exécuter la requête
         $stmt->execute($params);
-
         // Retourner les résultats
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -343,8 +410,6 @@ class ModeleProfesseur extends Connexion {
         $stmt->execute(['id_groupe' => $id_groupe]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
-
 
     public function get_promotions_projet($id_projet) {
         $req = "SELECT id_promo FROM Projet_Promotion WHERE id_projet = :id_projet";
@@ -399,18 +464,23 @@ class ModeleProfesseur extends Connexion {
         return $stmt->fetch();
     }
 
-
     public function get_livrables_par_projet($id_projet) {
-        $req = "SELECT * FROM Livrable WHERE projet_id = :id_projet";
-        $stmt = self::$bdd->prepare($req);
-        $stmt->execute(['id_projet' => $id_projet]);
-        $livrables = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($livrables as &$livrable) {
-            $livrable['fichiers'] = $this->get_fichiers_livrable($livrable['id_livrable']);
+        try {
+            // Définir la requête SQL
+            $sql = "SELECT * FROM Livrable WHERE projet_id = :projet_id";
+            // Préparer la requête avec l'instance PDO
+            $stmt = Connexion::get_connexion()->prepare($sql);
+            // Lier le paramètre à la valeur
+            $stmt->bindParam(':projet_id', $id_projet, PDO::PARAM_INT);
+            // Exécuter la requête
+            $stmt->execute();
+            // Retourner tous les résultats sous forme de tableau associatif
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Gérer les erreurs éventuelles
+            error_log("Erreur dans get_livrables_par_projet : " . $e->getMessage());
+            return [];
         }
-
-        return $livrables;
     }
 
     private function get_fichiers_livrable($id_livrable) {
@@ -429,7 +499,6 @@ class ModeleProfesseur extends Connexion {
         $stmt->execute(['id_professeur' => $id_professeur]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
 
     public function get_statistiques() {
         $statistiques = [];
