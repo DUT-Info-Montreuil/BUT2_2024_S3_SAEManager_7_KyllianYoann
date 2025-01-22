@@ -283,6 +283,26 @@ class ModeleProfesseur extends Connexion {
         }
     }
 
+    public function modifier_evaluation($data) {
+        $sql = "UPDATE Evaluation
+                SET titre = :titre, description = :description, note = :note, coefficient = :coefficient 
+                WHERE id_evaluation = :id_evaluation";
+        $stmt = $this->connexion->prepare($sql);
+        $stmt->bindParam(':titre', $data['titre']);
+        $stmt->bindParam(':description', $data['description']);
+        $stmt->bindParam(':note', $data['note']);
+        $stmt->bindParam(':coefficient', $data['coefficient']);
+        $stmt->bindParam(':id_evaluation', $data['id_evaluation'], PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    public function supprimer_evaluation($id_evaluation) {
+        $sql = "DELETE FROM Evaluation WHERE id_evaluation = :id_evaluation";
+        $stmt = $this->connexion->prepare($sql);
+        $stmt->bindParam(':id_evaluation', $id_evaluation, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
     /////////////////////
     //      GETTERS    //
     /////////////////////
@@ -625,6 +645,14 @@ class ModeleProfesseur extends Connexion {
             error_log("Erreur dans get_rendus_par_projet : " . $e->getMessage());
             return [];
         }
+    }
+
+    public function get_evaluation($id_evaluation) {
+        $sql = "SELECT * FROM evaluations WHERE id_evaluation = :id_evaluation";
+        $stmt = $this->connexion->prepare($sql);
+        $stmt->bindParam(':id_evaluation', $id_evaluation, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     ////////////////////////////
