@@ -214,6 +214,17 @@ class ModeleProfesseur extends Connexion {
         return $stmt->fetch()['is_responsable'] > 0;
     }
 
+    public function ajouter_fichier_livrable($id_livrable, $nom_fichier, $chemin_fichier) {
+        $req = "INSERT INTO Fichier (nom_fichier, chemin_fichier, id_livrable) 
+                VALUES (:nom_fichier, :chemin_fichier, :id_livrable)";
+        $stmt = self::$bdd->prepare($req);
+        $stmt->execute([
+            "nom_fichier" => $nom_fichier,
+            "chemin_fichier" => $chemin_fichier,
+            "id_livrable" => $id_livrable
+        ]);
+        return $stmt->rowCount() > 0;
+    }
 
     public function ajouter_feedback($rendu_id, $feedback) {
         $req = "INSERT INTO Feedback (rendu_id, contenu) VALUES (:rendu_id, :contenu)";
@@ -393,19 +404,32 @@ class ModeleProfesseur extends Connexion {
         $req = "SELECT * FROM Livrable WHERE projet_id = :id_projet";
         $stmt = self::$bdd->prepare($req);
         $stmt->execute(['id_projet' => $id_projet]);
-        return $stmt->fetchAll();
+        $livrables = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($livrables as &$livrable) {
+            $livrable['fichiers'] = $this->get_fichiers_livrable($livrable['id_livrable']);
+        }
+
+        return $livrables;
     }
 
-
-    public function get_projets_responsable($id_prof) {
-        $req = "SELECT p.id_projet, p.titre, p.description 
-                FROM Projet p
-                JOIN Responsable_Projet rp ON p.id_projet = rp.id_projet
-                WHERE rp.id_professeur = :id_prof";
+    private function get_fichiers_livrable($id_livrable) {
+        $req = "SELECT * FROM Fichier WHERE id_livrable = :id_livrable";
         $stmt = self::$bdd->prepare($req);
-        $stmt->execute(['id_prof' => $id_prof]);
-        return $stmt->fetchAll();
+        $stmt->execute(['id_livrable' => $id_livrable]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function get_projets_responsable($id_professeur) {
+        $req = "SELECT Projet.id_projet, Projet.titre 
+                FROM Projet
+                JOIN Responsable_Projet ON Projet.id_projet = Responsable_Projet.id_projet
+                WHERE Responsable_Projet.id_professeur = :id_professeur";
+        $stmt = self::$bdd->prepare($req);
+        $stmt->execute(['id_professeur' => $id_professeur]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
     public function get_statistiques() {
         $statistiques = [];
