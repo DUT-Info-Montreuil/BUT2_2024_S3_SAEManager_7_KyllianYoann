@@ -148,64 +148,75 @@ class VueAdmin extends VueGenerique {
         ?>
         <style>
         .table-container {
-            margin: 20px auto;
-            max-width: 1000px;
-            padding: 30px;
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin: 20px auto;
+        max-width: 1000px;
+        padding: 30px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .table-container h2 {
-            font-size: 22px;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            border-bottom: 2px solid #f1f1f1;
-            padding-bottom: 5px;
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: #2c3e50;
+        border-bottom: 2px solid #f1f1f1;
+        padding-bottom: 5px;
         }
 
         .table {
-            width: 100%;
-            border-collapse: collapse;
+        width: 100%;
+        border-collapse: collapse;
         }
 
         .table th,
         .table td {
-            padding: 15px;
-            text-align: left;
-            border: 1px solid #ddd;
+        padding: 15px;
+        text-align: left;
+        border: 1px solid #ddd;
         }
 
         .table th {
-            background-color: #4cd137;
-            color: white;
+        background-color: #4cd137;
+        color: white;
         }
 
         .table tr:nth-child(even) {
-            background-color: #f9f9f9;
+        background-color: #f9f9f9;
         }
 
         .table tr:hover {
-            background-color: #f1f1f1;
+        background-color: #f1f1f1;
         }
 
         .action-btn {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: bold;
+        color: #3498db;
+        text-decoration: none;
+        font-weight: bold;
         }
 
         .action-btn:hover {
-            color: #2980b9;
+        color: #2980b9;
         }
 
         .promo-form select {
-            margin-right: 10px;
+        margin-right: 10px;
+        }
+
+        #searchInput {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
         }
         </style>
+
         <div class="table-container">
         <h2>Liste des Utilisateurs</h2>
-        <table class="table">
+        <input type="text" id="searchInput" placeholder="Rechercher par nom, prénom, rôle ou promotion...">
+        <table class="table" id="usersTable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -254,8 +265,25 @@ class VueAdmin extends VueGenerique {
             </tbody>
         </table>
         </div>
+
+        <script>
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#usersTable tbody tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+            if (rowText.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        });
+        </script>
         <?php
     }
+
 
 
     public function form_creer_utilisateur() {
