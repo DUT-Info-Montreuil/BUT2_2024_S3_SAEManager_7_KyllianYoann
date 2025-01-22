@@ -75,9 +75,11 @@ class ControleurProfesseur {
             break;
         case 'detail_livrable':
             if (isset($_GET['id_livrable'])) {
-                $livrable = $this->modele->get_livrable(intval($_GET['id_livrable']));
+                $id_livrable = intval($_GET['id_livrable']);
+                $livrable = $this->modele->get_livrable($id_livrable);
+                $fichiers = $this->modele->get_fichiers_livrable($id_livrable); // Récupère les fichiers associés
                 if ($livrable) {
-                    $this->vue->detail_livrable($livrable);
+                    $this->vue->detail_livrable($livrable, $fichiers);
                 } else {
                     $_SESSION['error'] = "Livrable introuvable.";
                     header("Location: index.php?module=professeur&action=dashboard");
@@ -87,21 +89,8 @@ class ControleurProfesseur {
                 header("Location: index.php?module=professeur&action=dashboard");
             }
             break;
-        case 'modifier_livrable': // Afficher le formulaire de modification
-            if (isset($_GET['id_livrable'])) {
-                $id_livrable = intval($_GET['id_livrable']);
-                $livrable = $this->modele->get_livrable($id_livrable);
-                if ($livrable) {
-                    $projets_responsable = $this->modele->get_projets_responsable($_SESSION['utilisateur_id']);
-                    $this->vue->form_modifier_livrable($livrable, $projets_responsable);
-                } else {
-                    $_SESSION['error'] = "Livrable introuvable.";
-                    header("Location: index.php?module=professeur&action=dashboard");
-                }
-            } else {
-                $_SESSION['error'] = "ID du livrable manquant.";
-                header("Location: index.php?module=professeur&action=dashboard");
-            }
+        case 'modifier_livrable':
+            $this->modifier_livrable();
             break;
         case 'valider_modification_livrable': 
             $this->valider_modification_livrable();
@@ -178,24 +167,77 @@ class ControleurProfesseur {
     }
 
     public function modifier_livrable() {
-        // Vérifie si l'ID du livrable est passé
+        // Vérifie si l'ID du livrable est passé dans les paramètres
         if (!isset($_GET['id_livrable']) || empty($_GET['id_livrable'])) {
-            $_SESSION['error'] = "ID du livrable manquant.";
-            header("Location: index.php?module=professeur&action=dashboard");
+        $_SESSION['error'] = "ID du livrable manquant.";
+        header("Location: index.php?module=professeur&action=dashboard");
+        exit();
+        }
+
+        $id_livrable = intval($_GET['id_livrable']);
+
+        // Vérifie si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $titre = $_POST['titre'] ?? null;
+        $description = $_POST['description'] ?? null;
+        $date_limite = $_POST['date_limite'] ?? null;
+        $coefficient = $_POST['coefficient'] ?? null;
+        $projet_id = $_POST['projet_id'] ?? null;
+        $isIndividuel = isset($_POST['is_group']) ? 0 : 1;
+
+        // Validation des champs obligatoires
+        if (!$titre || !$description || !$date_limite || !$coefficient || !$projet_id) {
+            $_SESSION['error'] = "Tous les champs sont obligatoires.";
+            header("Location: index.php?module=professeur&action=modifier_livrable&id_livrable=$id_livrable");
             exit();
         }
-        $id_livrable = intval($_GET['id_livrable']);
-        // Récupère les informations du livrable depuis le modèle
+
+        // Mise à jour des informations du livrable dans la base de données
+        $resultat = $this->modele->modifier_livrable($id_livrable, $titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id);
+        if ($resultat) {
+            // Suppression des fichiers sélectionnés
+            if (!empty($_POST['fichiers_supprimes'])) {
+                foreach ($_POST['fichiers_supprimes'] as $id_fichier) {
+                    if (is_numeric($id_fichier)) {
+                        $this->modele->supprimer_fichier((int)$id_fichier);
+                    }
+                }
+            }
+
+            // Ajout de nouveaux fichiers
+            if (!empty($_FILES['fichiers']['name'][0])) {
+                $this->upload_fichiers($id_livrable, $_FILES['fichiers']);
+            }
+
+            // Confirmation de la modification
+            $_SESSION['success'] = "Livrable modifié avec succès.";
+            header("Location: index.php?module=professeur&action=detail_livrable&id_livrable=$id_livrable");
+            exit();
+        } else {
+            $_SESSION['error'] = "Erreur lors de la modification du livrable.";
+            header("Location: index.php?module=professeur&action=modifier_livrable&id_livrable=$id_livrable");
+            exit();
+            }
+        }
+
+        // Récupération des informations pour afficher le formulaire
         $livrable = $this->modele->get_livrable($id_livrable);
         if (!$livrable) {
         $_SESSION['error'] = "Livrable introuvable.";
-            header("Location: index.php?module=professeur&action=dashboard");
-            exit();
+        header("Location: index.php?module=professeur&action=dashboard");
+        exit();
         }
-        // Affiche le formulaire de modification avec les données pré-remplies
+
+        // Récupération des fichiers associés au livrable
+        $fichiers = $this->modele->get_fichiers_livrable($id_livrable);
+
+        // Récupération des projets associés au professeur
         $projets_responsable = $this->modele->get_projets_responsable($_SESSION['utilisateur_id']);
-        $this->vue->form_modifier_livrable($livrable, $projets_responsable);
+
+        // Appel à la vue pour afficher le formulaire
+        $this->vue->form_modifier_livrable($livrable, $fichiers, $projets_responsable);
     }
+
 
     public function valider_modification_livrable() {
         $id_livrable = $_POST['id_livrable'] ?? null;
@@ -280,49 +322,12 @@ class ControleurProfesseur {
         $description = $_POST['description'] ?? null;
         $date_limite = $_POST['date_limite'] ?? null;
         $coefficient = $_POST['coefficient'] ?? null;
-        $projet_titre = $_POST['projet_titre'] ?? null; // Titre du projet sélectionné
+        $projet_titre = $_POST['projet_titre'] ?? null;
         $isIndividuel = isset($_POST['is_group']) ? 0 : 1;
 
         // Validation des champs obligatoires
         if (!$titre || !$description || !$date_limite || !$coefficient || !$projet_titre) {
         $_SESSION['error'] = "Tous les champs sont obligatoires.";
-        // Pré-remplir le formulaire en cas d'erreur
-        $form_data = [
-            'titre' => $titre,
-            'description' => $description,
-            'date_limite' => $date_limite,
-            'coefficient' => $coefficient,
-            'projet_titre' => $projet_titre,
-            'is_group' => !$isIndividuel, // Si ce n'est pas individuel, le checkbox doit être coché
-        ];
-        $this->form_creer_livrable($this->modele->get_projets_responsable($_SESSION['utilisateur_id']), $form_data);
-        return;
-        }
-
-        // Récupération de l'id_projet via le titre
-        $projet = $this->modele->get_projet_par_titre($projet_titre);
-        if (!$projet) {
-            $_SESSION['error'] = "Projet introuvable.";
-            header("Location: index.php?module=professeur&action=creer_livrable");
-            exit();
-        }
-        $projet_id = $projet['id_projet'];
-    
-        // Ajout du livrable dans la base de données
-        $id_livrable = $this->modele->creer_livrable($titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id);
-        if ($id_livrable) {
-        // Gestion des fichiers (s'il y en a)
-        if (!empty($_FILES['fichiers']['name'][0])) {
-            $this->upload_fichiers($id_livrable, $_FILES['fichiers']);
-        }
-        // Confirmation de création réussie
-        $_SESSION['success'] = "Livrable créé avec succès.";
-        header("Location: index.php?module=professeur&action=liste_livrables&projet_id=" . $projet_id);
-        exit();
-        } else {
-        // Gestion des erreurs
-        $_SESSION['error'] = "Erreur lors de la création du livrable.";
-        // Pré-remplir le formulaire en cas d'erreur
         $form_data = [
             'titre' => $titre,
             'description' => $description,
@@ -332,15 +337,45 @@ class ControleurProfesseur {
             'is_group' => !$isIndividuel,
         ];
         $this->form_creer_livrable($this->modele->get_projets_responsable($_SESSION['utilisateur_id']), $form_data);
+        return;
+        }
+
+        // Récupération de l'ID du projet via le titre
+        $projet = $this->modele->get_projet_par_titre($projet_titre);
+        if (!$projet) {
+        $_SESSION['error'] = "Projet introuvable.";
+        header("Location: index.php?module=professeur&action=dashboard");
+        exit();
+        }
+        $projet_id = $projet['id_projet'];
+
+        // Ajout du livrable
+        $id_livrable = $this->modele->creer_livrable($titre, $description, $date_limite, $coefficient, $isIndividuel, $projet_id);
+        if ($id_livrable) {
+        // Gestion des fichiers (s'il y en a)
+        if (!empty($_FILES['fichiers']['name'][0])) {
+            $this->upload_fichiers($id_livrable, $_FILES['fichiers']);
+        }
+
+        // Utilisation de la fonction confirm_creer_livrable pour afficher le message de succès
+        $this->confirm_creer_livrable();
+        } else {
+        $_SESSION['error'] = "Erreur lors de la création du livrable.";
+        $this->form_creer_livrable($this->modele->get_projets_responsable($_SESSION['utilisateur_id']), [
+            'titre' => $titre,
+            'description' => $description,
+            'date_limite' => $date_limite,
+            'coefficient' => $coefficient,
+            'projet_titre' => $projet_titre,
+            'is_group' => !$isIndividuel,
+        ]);
         }
     }
-
 
     public function confirm_creer_livrable() {
         $this->vue->menu();
         echo "<p style='color: green; text-align: center;'>Le livrable a été créé avec succès.</p>";
     }
-
     
     private function supprimer_projet() {
         $id_projet = $_GET['id_projet'] ?? null; // Récupérer l'ID du projet
@@ -375,8 +410,6 @@ class ControleurProfesseur {
         $this->vue->menu();
         $this->vue->form_modifier_projet($projet, $promotions, $responsables); // Appeler la vue avec les données
     }
-
-   
 
     private function mettre_a_jour_projet() {
         if (!isset($_SESSION['utilisateur_id'])) {
