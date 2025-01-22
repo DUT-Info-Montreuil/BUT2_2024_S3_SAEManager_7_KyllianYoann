@@ -995,17 +995,18 @@ class VueProfesseur extends VueGenerique {
         <div class="filter-bar">
             <input type="text" id="search-rendu" placeholder="Rechercher un rendu..." onkeyup="filterRendus()">
         </div>
-        <table id="rendus-table" class="table">
-            <thead>
-                <tr>
-                    <th>Étudiant</th>
-                    <th>Groupe</th>
-                    <th>Date de Soumission</th>
-                    <th>Fichier</th>
-                    <th>Détails</th>
-                </tr>
-            </thead>
-            <tbody>
+                <table id="rendus-table" class="table">
+                    <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>Groupe</th>
+                            <th>Date de Soumission</th>
+                            <th>Fichier</th>
+                            <th>Détails</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            <?php if (!empty($rendus) && is_array($rendus)): ?>
                 <?php foreach ($rendus as $rendu): ?>
                     <tr>
                         <td><?= htmlspecialchars($rendu['etudiant_nom']); ?></td>
@@ -1019,7 +1020,12 @@ class VueProfesseur extends VueGenerique {
                         <td><?= htmlspecialchars($rendu['details']); ?></td>
                     </tr>
                 <?php endforeach; ?>
-            </tbody>
+            <?php else: ?>
+                <tr>
+                    <td colspan="5" style="text-align: center;">Aucun rendu disponible pour ce livrable.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
         </table>
         </div>
 
