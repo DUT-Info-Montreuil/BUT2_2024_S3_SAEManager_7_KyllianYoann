@@ -5,7 +5,6 @@ require_once "modules/mod_etudiant/vue_etudiant.php";
 class ControleurEtudiant {
     private $modele;
     private $vue;
-    private $action;
 
     public function __construct() {
         $this->modele = new ModeleEtudiant();
@@ -13,153 +12,111 @@ class ControleurEtudiant {
     }
 
     public function exec() {
-        $this->action = $_GET['action'] ?? 'dashboard';
+        $action = $_GET['action'] ?? 'dashboard';
 
-        switch ($this->action) {
+        switch ($action) {
             case 'dashboard':
-                $this->dashboard();
+                $this->afficher_dashboard();
                 break;
-            case 'form_soumettre_rendu':
-                $this->form_soumettre_rendu();
+
+            case 'detail_projet':
+                $this->afficher_detail_projet();
                 break;
+
+            case 'detail_livrable':
+                $this->afficher_detail_livrable();
+                break;
+
             case 'soumettre_rendu':
                 $this->soumettre_rendu();
                 break;
-            case 'details_livrable':
-                $this->details_livrable();
-                break;
+
             default:
-                die("Action inexistante");
+                die("Action inconnue : " . htmlspecialchars($action));
         }
     }
 
-    private function dashboard() {
-        // Récupère les données pour la vue dashboard
-        if (!isset($_SESSION["utilisateur_id"])) {
-            die("Erreur : Vous devez être connecté pour accéder au tableau de bord.");
-        }
-        $utilisateur_id = $_SESSION["utilisateur_id"];
-
-        $livrables = $this->modele->get_livrables();
-        $groupe = $this->modele->get_groupe($utilisateur_id);
-        $coefficients = $this->modele->get_coefficients();
-
-        // Affiche le tableau de bord
-        $this->vue->dashboard($livrables, $groupe, $coefficients);
+    private function afficher_dashboard() {
+        $etudiant_id = $_SESSION['utilisateur_id'];
+        $etudiant = $this->modele->get_etudiant($etudiant_id); // Nouvelle méthode dans le modèle
+        $projets = $this->modele->get_projets_pour_etudiant($etudiant_id);
+        $this->vue->afficher_dashboard($projets, $etudiant);
     }
 
-    private function form_soumettre_rendu() {
-        $id_livrable = $_GET['id'] ?? null;
-
-        if ($id_livrable) {
-            $livrable = $this->modele->get_livrable($id_livrable);
-            $this->vue->menu();
-            $this->vue->form_soumettre_rendu($livrable);
-        } else {
-            $livrables = $this->modele->get_livrables();
-            $this->vue->menu();
-            $this->vue->form_soumettre_rendu(null, $livrables);
+    private function afficher_detail_projet() {
+        $id_projet = $this->valider_entree('id_projet', FILTER_VALIDATE_INT);
+        if (!$id_projet) {
+            $this->rediriger("index.php?module=etudiant&action=dashboard", "Projet non spécifié.", "error");
         }
+        $projet = $this->modele->get_projet($id_projet);
+        $groupes = $this->modele->get_groupes_par_projet($id_projet);
+        $livrables = $this->modele->get_livrables_par_projet($id_projet);
+
+        $etudiant_id = $_SESSION['utilisateur_id'];
+        $groupe_etudiant = $this->modele->get_groupe_etudiant($etudiant_id, $id_projet);
+
+        // Appel unique à la vue
+        $this->vue->afficher_detail_projet($projet, $livrables, $groupes, $groupe_etudiant);
+    }
+
+    private function afficher_detail_livrable() {
+        $id_livrable = $this->valider_entree('id_livrable', FILTER_VALIDATE_INT);
+        if (!$id_livrable) {
+            $this->rediriger("index.php?module=etudiant&action=dashboard", "Livrable non spécifié.", "error");
+        }
+
+        $livrable = $this->modele->get_livrable($id_livrable);
+        $etudiant_id = $_SESSION['utilisateur_id'];
+        $rendu = $this->modele->get_rendu_etudiant($id_livrable, $etudiant_id);
+
+        $this->vue->afficher_detail_livrable($livrable, $rendu);
     }
 
     private function soumettre_rendu() {
-    $id_livrable = $_POST['livrable_id'] ?? null;
-    $titre_rendu = $_POST['titre'] ?? 'Rendu sans titre';
-    $fichier = $_FILES['fichier'] ?? null;
+        $id_livrable = $_POST['id_livrable'] ?? null;
+        $description = $_POST['description'] ?? null;
+        $etudiant_id = $_SESSION['utilisateur_id'];
 
-    if ($id_livrable && $fichier) {
-        try {
-            // Appel de la méthode du modèle pour soumettre le rendu
-            $result = $this->modele->soumettre_rendu($titre_rendu, $id_livrable, $fichier);
+        if (!$id_livrable || !$description) {
+            $this->rediriger(
+                "index.php?module=etudiant&action=detail_livrable&id_livrable=" . htmlspecialchars($id_livrable),
+                "Tous les champs sont obligatoires.",
+                "error"
+            );
+        }
 
-            if ($result) {
-                // Redirection vers la page des détails du livrable après succès
-                header("Location: index.php?module=etudiant&action=details_livrable&id=$id_livrable");
-                exit;
-            } else {
-                echo "<p>Erreur lors de la soumission du rendu.</p>";
-            }
-        } catch (Exception $e) {
-            echo "<p>Erreur : " . htmlspecialchars($e->getMessage()) . "</p>";
-            }
+        $chemin_fichier = $this->gerer_fichier($_FILES['fichier'] ?? null);
+
+        $resultat = $this->modele->ajouter_rendu($id_livrable, $etudiant_id, $description, $chemin_fichier);
+        if ($resultat) {
+            $_SESSION['success'] = "Rendu soumis avec succès.";
         } else {
-        echo "<p>Paramètres manquants pour soumettre le rendu.</p>";
+            $_SESSION['error'] = "Erreur lors de la soumission du rendu.";
         }
+        $this->rediriger("index.php?module=etudiant&action=detail_livrable&id_livrable=" . htmlspecialchars($id_livrable));
+        exit();
     }
 
-    private function consulter_feedbacks() {
-        // Vérifie si l'utilisateur est connecté
-        if (!isset($_SESSION["utilisateur_id"])) {
-            die("Erreur : Vous devez être connecté pour consulter vos feedbacks.");
+    private function valider_entree($key, $type = FILTER_SANITIZE_STRING, $method = INPUT_GET) {
+        return filter_input($method, $key, $type);
+    }
+
+    private function gerer_fichier($fichier) {
+        if ($fichier && $fichier['error'] === UPLOAD_ERR_OK) {
+            $chemin_fichier = 'uploads/' . basename($fichier['name']);
+            if (!move_uploaded_file($fichier['tmp_name'], $chemin_fichier)) {
+                return null;
+            }
+            return $chemin_fichier;
         }
-        $utilisateur_id = $_SESSION["utilisateur_id"];
-        $feedbacks = $this->modele->get_feedbacks($utilisateur_id);
-
-        // Affiche les feedbacks
-        $this->vue->consulter_feedbacks($feedbacks);
+        return null;
     }
 
-    private function ajouter_commentaire() {
-    $contenu = $_POST['contenu'] ?? null;
-    $evaluation_id = $_POST['evaluation_id'] ?? null;
-
-    if ($contenu && $evaluation_id) {
-        $result = $this->modele->ajouter_commentaire($contenu, $evaluation_id);
-        if ($result) {
-            echo "<p>Commentaire ajouté avec succès !</p>";
-        } else {
-            echo "<p>Erreur lors de l'ajout du commentaire.</p>";
+    private function rediriger($url, $message = null, $type = 'success') {
+        if ($message) {
+            $_SESSION[$type] = $message;
         }
-    } else {
-        echo "<p>Paramètres manquants pour ajouter le commentaire.</p>";
-        }
-    }
-    
-    private function details_livrable() {
-    // Vérifie si l'ID du livrable est passé dans l'URL
-    $id_livrable = $_GET['id'] ?? null;
-
-    if (!$id_livrable) {
-        // Si l'ID du livrable n'est pas spécifié ou est invalide
-        $this->vue->menu();
-        echo "<p>Aucun ID de livrable spécifié.</p>";
-        return;
-    }
-
-    // Vérifie si l'utilisateur est connecté
-    if (!isset($_SESSION['utilisateur_id'])) {
-        $this->vue->menu();
-        echo "<p>Utilisateur non connecté. Veuillez vous reconnecter.</p>";
-        return;
-    }
-
-    // Récupère les informations du livrable
-    $livrable = $this->modele->get_livrable($id_livrable);
-
-    if (!$livrable) {
-        // Si le livrable n'existe pas
-        $this->vue->menu();
-        echo "<p>Livrable introuvable.</p>";
-        return;
-    }
-
-    // Récupère les évaluations associées au livrable
-    $evaluations = $this->modele->get_evaluations($id_livrable) ?? [];
-
-    // Récupère les feedbacks associés au livrable
-    $feedbacks = $this->modele->get_feedbacks_by_livrable($id_livrable) ?? [];
-
-    // Récupère les commentaires pour chaque évaluation
-    $commentaires = [];
-    foreach ($evaluations as $evaluation) {
-        $commentaires[$evaluation['id_evaluation']] = $this->modele->get_commentaires($evaluation['id_evaluation']) ?? [];
-    }
-
-    // Récupère le rendu associé à l'utilisateur pour ce livrable
-    $rendu = $this->modele->get_rendu_by_livrable($id_livrable, $_SESSION['utilisateur_id']) ?? null;
-
-    // Affiche la vue avec les détails du livrable
-    $this->vue->menu();
-    $this->vue->details_livrable($livrable, $evaluations, $feedbacks, $commentaires, $rendu);
+        header("Location: $url");
+        exit();
     }
 }
