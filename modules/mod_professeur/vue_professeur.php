@@ -49,266 +49,298 @@ class VueProfesseur extends VueGenerique {
         $prenom = htmlspecialchars($professeur_info['prenom'] ?? 'Inconnu');
     ?>
     <style>
-        .dashboard-container {
-            margin: 20px auto;
-            max-width: 1200px;
-            padding: 30px;
-            background-color: #f9f9f9;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
+    /* Styles CSS */
+    .dashboard-container {
+        margin: 20px auto;
+        max-width: 1200px;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
 
-        .dashboard-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-        .dashboard-header h1 {
-            font-size: 32px;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
+    .dashboard-header h1 {
+        font-size: 32px;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
 
-        .dashboard-header p {
-            font-size: 18px;
-            color: #555;
-        }
+    .dashboard-header p {
+        font-size: 18px;
+        color: #555;
+    }
 
-        .projet-card-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            margin-top: 30px;
-        }
+    .projet-card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 30px;
+    }
 
-        .projet-card {
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            margin: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
+    .projet-card {
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
 
-        .projet-card:hover {
-            transform: scale(1.05);
-        }
+    .projet-card:hover {
+        transform: scale(1.05);
+    }
 
-        .projet-card h3 {
-            font-size: 20px;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
+    .projet-card h3 {
+        font-size: 20px;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
 
-        .projet-card p {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 15px;
-        }
+    .projet-card p {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 15px;
+    }
 
-        .projet-card a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 14px;
-            color: white;
-            background-color: #4cd137;
-            text-decoration: none;
-            border-radius: 5px;
-        }
+    .projet-card a {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 14px;
+        color: white;
+        background-color: #4cd137;
+        text-decoration: none;
+        border-radius: 5px;
+    }
 
-        .projet-card a:hover {
-            background-color: #44bd32;
-        }
+    .projet-card a:hover {
+        background-color: #44bd32;
+    }
 
-        .stats-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+    .stats-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
 
-        .stat-box {
-            flex: 1;
-            background-color: #ffffff;
-            padding: 20px;
-            margin: 0 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+    .stat-box {
+        flex: 1;
+        background-color: #ffffff;
+        padding: 20px;
+        margin: 0 10px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
 
-        .stat-box h3 {
-            margin: 10px 0;
-            font-size: 24px;
-            color: #2c3e50;
-        }
+    .stat-box h3 {
+        margin: 10px 0;
+        font-size: 24px;
+        color: #2c3e50;
+    }
 
-        .stat-box p {
-            margin: 0;
-            font-size: 16px;
-            color: #777;
-        }
+    .stat-box p {
+        margin: 0;
+        font-size: 16px;
+        color: #777;
+    }
 
-        .stat-icon {
-            font-size: 40px;
-            color: #4cd137;
-            margin-bottom: 10px;
-        }
+    .stat-icon {
+        font-size: 40px;
+        color: #4cd137;
+        margin-bottom: 10px;
+    }
 
-        .message {
-            text-align: center;
-            font-size: 16px;
-            color: green;
-            margin-bottom: 20px;
-        }
+    .message {
+        text-align: center;
+        font-size: 16px;
+        color: green;
+        margin-bottom: 20px;
+    }
 
-        .error-message {
-            text-align: center;
-            font-size: 16px;
-            color: red;
-            margin-bottom: 20px;
-        }
+    .error-message {
+        text-align: center;
+        font-size: 16px;
+        color: red;
+        margin-bottom: 20px;
+    }
     </style>
 
     <div class="dashboard-container">
         <div class="dashboard-header">
-            <h1>Dashboard (<?= $nom; ?> <?= $prenom; ?>)</h1>
-            <p>Bienvenue dans votre espace de gestion des projets et rendus.</p>
+        <h1>Dashboard (<?= $nom; ?> <?= $prenom; ?>)</h1>
+        <p>Bienvenue dans votre espace de gestion des projets et rendus.</p>
         </div>
 
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="message"><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
+        <div class="message"><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
         <?php elseif (isset($_SESSION['error'])): ?>
-            <div class="error-message"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
+        <div class="error-message"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
         <?php endif; ?>
 
-        <div class="stats-container">
-            <div class="stat-box">
-                <div class="stat-icon">🗂️</div>
-                <h3><?= htmlspecialchars($statistiques['livrables_total'] ?? 0); ?></h3>
-                <p>Livrables créés</p>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon">📋</div>
-                <h3><?= htmlspecialchars($statistiques['rendus_total'] ?? 0); ?></h3>
-                <p>Rendus soumis</p>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon">✉️</div>
-                <h3><?= htmlspecialchars($statistiques['feedbacks_total'] ?? 0); ?></h3>
-                <p>Feedbacks donnés</p>
-            </div>
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-icon">🗂️</div>
+            <h3><?= htmlspecialchars($statistiques['livrables_total'] ?? 0); ?></h3>
+            <p>Livrables créés</p>
         </div>
+        <div class="stat-box">
+            <div class="stat-icon">📋</div>
+            <h3><?= htmlspecialchars($statistiques['rendus_total'] ?? 0); ?></h3>
+            <p>Rendus soumis</p>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">✉️</div>
+            <h3><?= htmlspecialchars($statistiques['feedbacks_total'] ?? 0); ?></h3>
+            <p>Feedbacks donnés</p>
+        </div>
+    </div>
 
-        <div class="projet-card-container">
-            <?php if (!empty($projets)): ?>
-                <?php foreach ($projets as $projet): ?>
-                    <div class="projet-card">
-                        <h3><?= htmlspecialchars($projet['titre']); ?></h3>
-                        <p><?= htmlspecialchars($projet['description']); ?></p>
-                        <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-success">
-                            Voir le Projet
-                        </a>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>Aucun projet disponible.</p>
-            <?php endif; ?>
+    <div class="projet-card-container">
+        <?php if (!empty($projets)): ?>
+            <?php foreach ($projets as $projet): ?>
+                <div class="projet-card">
+                    <h3><?= htmlspecialchars($projet['titre'] ?? 'Titre non défini'); ?></h3>
+                    <p><?= htmlspecialchars($projet['description'] ?? 'Description non disponible' ); ?></p>
+                    <a href="index.php?module=professeur&action=detail_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-success">
+                        Voir le Projet
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>Aucun projet disponible.</p>
+        <?php endif; ?>
         </div>
     </div>
     <?php
     }
 
 
-
-    public function form_creer_livrable() {
-        ?>
+    public function form_creer_livrable($projets_responsable) {
+    ?>
         <style>
-            .form-container {
-                margin: 20px auto;
-                max-width: 600px;
-                padding: 30px;
-                background: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
+        .form-container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-            .form-container h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-                text-align: center;
-                color: #2c3e50;
-            }
+        .form-container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
 
-            .form-group {
-                margin-bottom: 20px;
-            }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                font-size: 14px;
-                color: #555;
-            }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
 
-            .form-group input,
-            .form-group textarea {
-                width: 100%;
-                padding: 10px;
-                font-size: 14px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-            }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
 
-            .form-submit {
-                display: block;
-                width: 100%;
-                padding: 10px;
-                font-size: 16px;
-                color: white;
-                background-color: #4cd137;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
 
-            .form-submit:hover {
-                background-color: #44bd32;
-            }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .form-submit {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #4cd137;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #44bd32;
+        }
         </style>
         <div class="form-container">
-            <h1>Créer un Livrable</h1>
-            <form action="index.php?module=professeur&action=creer_livrable" method="POST">
-                <div class="form-group">
-                    <label for="titre">Titre :</label>
-                    <input type="text" id="titre" name="titre" placeholder="Titre du livrable" required>
+        <h1>Créer un Livrable</h1>
+        <form action="index.php?module=professeur&action=creer_livrable" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="titre">Titre :</label>
+                <input type="text" id="titre" name="titre" placeholder="Titre du livrable" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" placeholder="Détaillez le contenu attendu" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="date_limite">Date Limite :</label>
+                <input type="date" id="date_limite" name="date_limite" required>
+            </div>
+            <div class="form-group">
+                <label for="coefficient">Coefficient :</label>
+                <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" required>
+            </div>
+            <div class="form-group">
+                <label for="projet_id">Projet :</label>
+                <select id="projet_id" name="projet_id" required>
+                    <option value="">Sélectionnez un projet</option>
+                    <?php foreach ($projets_responsable as $projet): ?>
+                        <option value="<?= htmlspecialchars($projet['id_projet']); ?>">
+                            <?= htmlspecialchars($projet['titre']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="isGroup">Est-ce un Rendu pour un groupe ?</label>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="isGroup" name="isIndividuel" value="0">
+                    <label for="isGroup">Coché = oui -> rendu groupé</label>
                 </div>
-                <div class="form-group">
-                    <label for="description">Description :</label>
-                    <textarea id="description" name="description" placeholder="Détaillez le contenu attendu" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="date_limite">Date Limite :</label>
-                    <input type="date" id="date_limite" name="date_limite" required>
-                </div>
-                <div class="form-group">
-                    <label for="coefficient">Coefficient :</label>
-                    <input type="number" id="coefficient" name="coefficient" placeholder="Coefficient" required>
-                </div>
-                <div class="form-group">
-                <input type="radio" id="True" name="isIndividuel" value="True">
-                <label for="True">Individuel</label>
-
-                <input type="radio" id="False" name="isIndividuel" value="False">
-                <label for="False">Groupe</label>
-                </div>
-                <button type="submit" class="form-submit">Créer le Livrable</button>
-            </form>
+                <!-- Si non coché, la valeur par défaut (individuel) sera gérée côté backend -->
+            </div>
+            <div class="form-group">
+                <label for="fichiers">Ajouter des fichiers :</label>
+                <input type="file" id="fichiers" name="fichiers[]" multiple>
+            </div>
+            <button type="submit" class="form-submit">Créer le Livrable</button>
+        </form>
         </div>
-        <?php
+    <?php
     }
 
     public function consulter_rendus($livrables, $rendus) {
@@ -415,8 +447,8 @@ class VueProfesseur extends VueGenerique {
     }
 
     public function form_creer_projet($promotions, $professeurs) {
-?>
-    <style>
+    ?>
+        <style>
         .form-container {
             margin: 20px auto;
             max-width: 600px;
@@ -644,7 +676,7 @@ class VueProfesseur extends VueGenerique {
 
     public function detail_projet($projet, $livrables) {
     ?>
-    <style>
+        <style>
         .projet-container {
             margin: 20px auto;
             max-width: 800px;
@@ -688,6 +720,19 @@ class VueProfesseur extends VueGenerique {
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
+        .projet-container ul li ul {
+            margin-top: 10px;
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .projet-container ul li ul li {
+            background: none;
+            box-shadow: none;
+            margin: 5px 0;
+            padding: 0;
+        }
+
         .actions {
             display: flex;
             justify-content: space-between;
@@ -713,6 +758,15 @@ class VueProfesseur extends VueGenerique {
 
         .btn-primary:hover {
             background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #f39c12;
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e67e22;
         }
 
         .btn-danger {
@@ -750,18 +804,26 @@ class VueProfesseur extends VueGenerique {
             <?php endif; ?>
         </p>
 
-
         <h2>Livrables associés</h2>
         <ul>
             <?php foreach ($livrables as $livrable): ?>
                 <li>
-                    <strong><?= htmlspecialchars($livrable['titre_livrable']); ?> :</strong> 
+                    <strong><?= htmlspecialchars($livrable['titre_livrable']); ?></strong> :
                     <?= htmlspecialchars($livrable['description']); ?> (Date limite : <?= htmlspecialchars($livrable['date_limite']); ?>)
+                    <ul>
+                        <?php foreach ($livrable['fichiers'] as $fichier): ?>
+                            <li>
+                                <a href="<?= htmlspecialchars($fichier['chemin_fichier']); ?>" target="_blank">
+                                    <?= htmlspecialchars($fichier['nom_fichier']); ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
                 </li>
             <?php endforeach; ?>
         </ul>
 
-            <div class="actions">
+        <div class="actions">
             <a href="index.php?module=professeur&action=modifier_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" class="btn btn-primary">
                 Modifier le projet
             </a>
@@ -771,10 +833,11 @@ class VueProfesseur extends VueGenerique {
             <form action="index.php?module=professeur&action=supprimer_projet&id_projet=<?= htmlspecialchars($projet['id_projet']); ?>" method="GET" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
                 <button type="submit" class="btn btn-danger">Supprimer le projet</button>
             </form>
-            </div>
+        </div>
         </div>
     <?php
     }
+
 
     public function gestion_groupes($id_projet, $etudiants, $groupes) {
     ?>
