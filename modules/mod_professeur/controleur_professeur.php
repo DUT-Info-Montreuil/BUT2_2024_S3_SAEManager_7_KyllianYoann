@@ -78,6 +78,7 @@ class ControleurProfesseur {
                 $id_livrable = intval($_GET['id_livrable']);
                 $livrable = $this->modele->get_livrable($id_livrable);
                 $fichiers = $this->modele->get_fichiers_livrable($id_livrable); // Récupère les fichiers associés
+                $rendus = $this->modele->get_rendus(); // Récupération des rendus depuis le modèle
                 if ($livrable) {
                     $this->vue->detail_livrable($livrable, $fichiers, $rendus);
                 } else {
@@ -183,28 +184,40 @@ class ControleurProfesseur {
     }
 
     public function detail_livrable() {
-        // Vérifier si un identifiant de livrable est passé
-        $id_livrable = $_GET['id_livrable'] ?? null;
-        if (!$id_livrable) {
-            $_SESSION['error'] = "Aucun identifiant de livrable fourni.";
-            header("Location: index.php?module=professeur&action=dashboard");
-            exit();
-        }
-
-        // Récupérer les détails du livrable à partir du modèle
-        $livrable = $this->modele->get_livrable($id_livrable);
-        if (!$livrable) {
-            $_SESSION['error'] = "Livrable introuvable.";
-            header("Location: index.php?module=professeur&action=dashboard");
-            exit();
-        }
-
-        // Afficher la vue pour les détails du livrable
-        $fichiers = $this->modele->get_fichiers_livrable($id_livrable);
-        $rendus = $this->modele->getRendusByLivrable($id_livrable) ?? [];
-        $this->vue->menu();
-        $this->vue->detail_livrable($livrable, $fichiers); // Ce passage cause l'erreur
+    // Vérifier si un identifiant de livrable est passé dans l'URL
+    $id_livrable = $_GET['id_livrable'] ?? null;
+    if (!$id_livrable) {
+        $_SESSION['error'] = "Aucun identifiant de livrable fourni.";
+        header("Location: index.php?module=professeur&action=dashboard");
+        exit();
     }
+
+    // Récupérer les détails du livrable
+    $livrable = $this->modele->getLivrableById($id_livrable);
+    if (!$livrable) {
+        $_SESSION['error'] = "Livrable introuvable.";
+        header("Location: index.php?module=professeur&action=dashboard");
+        exit();
+    }
+
+    // Récupérer les fichiers associés au livrable
+    $fichiers = $this->modele->getFichiersByLivrable($id_livrable);
+
+    // Récupérer les rendus associés au livrable
+    $rendus = $this->modele->getRendusByLivrable($id_livrable) ?? [];
+    foreach ($rendus as &$rendu) {
+        // Normaliser les données pour éviter les erreurs de clés manquantes
+        $rendu['etudiant_nom'] = $rendu['etudiant_nom'] ?? 'Non spécifié';
+        $rendu['groupe_nom'] = $rendu['groupe_nom'] ?? 'Individuel';
+        $rendu['nom_fichier'] = $rendu['nom_fichier'] ?? 'Fichier non disponible';
+        $rendu['details'] = $rendu['details'] ?? 'Pas de détails';
+    }
+
+    // Appeler la vue pour afficher les détails du livrable
+    $this->vue->menu();
+    $this->vue->detail_livrable($livrable, $fichiers, $rendus);
+    }
+
     
     private function form_creer_livrable() {
         // Récupérer les projets pour lesquels le professeur est responsable
