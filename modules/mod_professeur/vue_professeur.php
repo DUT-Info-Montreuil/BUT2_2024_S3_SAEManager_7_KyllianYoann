@@ -872,127 +872,127 @@ class VueProfesseur extends VueGenerique {
     public function detail_livrable($livrable, $fichiers, $rendus) {
         // Vérification que le livrable contient les données nécessaires
         if (!$livrable || empty($livrable['id_livrable'])) {
-        echo "<p style='color:red;'>Erreur : Livrable introuvable ou données incomplètes.</p>";
-        return;
+            echo "<p style='color:red;'>Erreur : Livrable introuvable ou données incomplètes.</p>";
+            return;
         }
         ?>
         <style>
         .livrable-container {
-            margin: 20px auto;
-            max-width: 800px;
-            background-color: #f9f9f9;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            font-family: Arial, sans-serif;
+        margin: 20px auto;
+        max-width: 800px;
+        background-color: #f9f9f9;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
         }
 
         .livrable-container h1 {
-            font-size: 28px;
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 20px;
+        font-size: 28px;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 20px;
         }
 
         .livrable-container p {
-            font-size: 16px;
-            margin: 10px 0;
-            line-height: 1.6;
+        font-size: 16px;
+        margin: 10px 0;
+        line-height: 1.6;
         }
 
         .actions {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        }  
 
         .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-            color: white;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
+        padding: 10px 20px;
+        font-size: 16px;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
         }
 
         .btn-primary {
-            background-color: #3498db;
+        background-color: #3498db;
         }
 
         .btn-primary:hover {
-            background-color: #2980b9;
+        background-color: #2980b9;
         }
 
         .btn-secondary {
-            background-color: #f39c12;
+        background-color: #f39c12;
         }
 
         .btn-secondary:hover {
-            background-color: #e67e22;
+        background-color: #e67e22;
         }
 
         .btn-danger {
-            background-color: #e74c3c;
+        background-color: #e74c3c;
         }
 
         .btn-danger:hover {
-            background-color: #c0392b;
+        background-color: #c0392b;
         }
 
         .table-container {
-            margin-top: 30px;
-            overflow-x: auto;
+        margin-top: 30px;
+        overflow-x: auto;
         }
 
         .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
         }
 
         .table th,
         .table td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
         }
 
         .table th {
-            background-color: #4cd137;
-            color: white;
+        background-color: #4cd137;
+        color: white;
         }
 
         .table tr:nth-child(even) {
-            background-color: #f9f9f9;
+        background-color: #f9f9f9;
         }
 
         .table tr:hover {
-            background-color: #f1f1f1;
+        background-color: #f1f1f1;
         }
 
         .filter-bar {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
         }
 
         .filter-bar input {
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 300px;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        width: 100%;
+        max-width: 300px;
         }
         </style>
 
         <?php $this->menu(); ?>
         <div class="livrable-container">
-        <h1><?= htmlspecialchars($livrable['titre_livrable']); ?></h1>
+        <h1><?= htmlspecialchars($livrable['titre_livrable'] ?? 'Titre non spécifié'); ?></h1>
         <p><strong>Description :</strong> <?= htmlspecialchars($livrable['description'] ?? 'Non spécifiée'); ?></p>
         <p><strong>Date limite :</strong> <?= htmlspecialchars($livrable['date_limite'] ?? 'Non définie'); ?></p>
         <p><strong>Coefficient :</strong> <?= htmlspecialchars($livrable['coefficient'] ?? 'Non défini'); ?></p>
@@ -1014,8 +1014,8 @@ class VueProfesseur extends VueGenerique {
                 <ul>
                     <?php foreach ($fichiers as $fichier): ?>
                         <li>
-                            <a href="<?= htmlspecialchars($fichier['chemin_fichier']); ?>" target="_blank">
-                                <?= htmlspecialchars($fichier['nom_fichier']); ?>
+                            <a href="<?= htmlspecialchars($fichier['chemin_fichier'] ?? '#'); ?>" target="_blank">
+                                <?= htmlspecialchars($fichier['nom_fichier'] ?? 'Fichier non spécifié'); ?>
                             </a>
                         </li>
                     <?php endforeach; ?>
@@ -1056,15 +1056,15 @@ class VueProfesseur extends VueGenerique {
                 <?php if (!empty($rendus) && is_array($rendus)): ?>
                     <?php foreach ($rendus as $rendu): ?>
                         <tr>
-                            <td><?= htmlspecialchars($rendu['etudiant_nom']); ?></td>
+                            <td><?= htmlspecialchars($rendu['etudiant_nom'] ?? 'Non spécifié'); ?></td>
                             <td><?= htmlspecialchars($rendu['groupe_nom'] ?? 'Individuel'); ?></td>
-                            <td><?= htmlspecialchars($rendu['date_soumission']); ?></td>
+                            <td><?= htmlspecialchars($rendu['date_soumission'] ?? 'Date non fournie'); ?></td>
                             <td>
-                                <a href="<?= htmlspecialchars($rendu['chemin_fichier']); ?>" target="_blank">
-                                    <?= htmlspecialchars($rendu['nom_fichier']); ?>
+                                <a href="<?= htmlspecialchars($rendu['chemin_fichier'] ?? '#'); ?>" target="_blank">
+                                    <?= htmlspecialchars($rendu['nom_fichier'] ?? 'Fichier non disponible'); ?>
                                 </a>
                             </td>
-                            <td><?= htmlspecialchars($rendu['details']); ?></td>
+                            <td><?= htmlspecialchars($rendu['details'] ?? 'Pas de détails'); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -1078,23 +1078,23 @@ class VueProfesseur extends VueGenerique {
 
         <script>
         function filterRendus() {
-            const input = document.getElementById('search-rendu').value.toLowerCase();
-            const table = document.getElementById('rendus-table');
-            const rows = table.getElementsByTagName('tr');
+        const input = document.getElementById('search-rendu').value.toLowerCase();
+        const table = document.getElementById('rendus-table');
+        const rows = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                let match = false;
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let match = false;
 
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].textContent.toLowerCase().includes(input)) {
-                        match = true;
-                        break;
-                    }
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().includes(input)) {
+                    match = true;
+                    break;
                 }
-
-                rows[i].style.display = match ? '' : 'none';
             }
+
+            rows[i].style.display = match ? '' : 'none';
+        }
         }
         </script>
         <?php
