@@ -1,0 +1,83 @@
+Le site web  : http://saemanager7.infy.uk/
+site d'hebergement : infinityfree
+
+Contacter : Kyllian ou Yoann pour avoir les identifiants 
+
+Kyllian discord : Anosun
+Yoann discord : yk.18b
+
+Lien du trello :  https://trello.com/invite/b/675adb5c4a967a6e057118f9/ATTI611eff0ddd47f040759839e7285e3e5aF6FDB24B/sae322024kyllianyoann
+
+
+Pour faire les test des différents panel : d'abord on se connecte sur le panel Admin on créer les utilisateurs qu'on veut puis on se connecte à nos utilisateurs qu'on a créer 
+                                          puis on créer projet,livrables en tant que prof, étudiant qui peut émettre un rendu sur les livrable, prof qui évalue.
+
+Mettre l'identifiant :    kyllianadmin
+Mettre mot de passe :     adminpass
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Synthèse de mon projet
+Mon projet est une application web de gestion de projets éducatifs, conçue pour permettre à différentes parties prenantes (étudiants, enseignants) de collaborer efficacement dans le cadre de la soumission et du suivi des livrables associés à des projets. Il repose sur une architecture modulaire basée sur le modèle MVC (Modèle-Vue-Contrôleur), garantissant une organisation claire et évolutive du code.
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Objectif principal
+L'objectif de mon projet est de créer un système où :
+
+Les enseignants peuvent définir et suivre des projets, assigner des livrables, et consulter les rendus des étudiants.
+Les étudiants peuvent consulter leurs projets, soumettre des rendus (fichiers associés aux livrables), et gérer leurs interactions avec les enseignants (feedbacks, notifications, etc.).
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Fonctionnalités clés
+1. Gestion des utilisateurs
+Étudiants : Chaque étudiant dispose d'un tableau de bord personnalisé pour accéder aux projets auxquels il est associé, consulter les livrables et soumettre ses rendus.
+Enseignants : Les enseignants ont accès à un tableau de bord pour gérer les projets, assigner des livrables et suivre les soumissions.
+2. Gestion des projets
+Création et suivi des projets éducatifs, avec des informations comme le titre, la description, le semestre, les coefficients, et les groupes associés.
+Association des projets à des promotions et des enseignants responsables.
+3. Gestion des livrables
+Ajout de livrables (documents à rendre) avec des spécifications comme :
+La date limite.
+Le type de rendu (individuel ou en groupe).
+Les fichiers d'accompagnement (ressources pour les étudiants).
+4. Soumission des rendus
+Les étudiants peuvent :
+Soumettre des fichiers (avec une gestion des formats et des conflits via des noms uniques).
+Ajouter une description pour contextualiser leur rendu.
+Les rendus sont stockés dans une base de données avec des informations comme :
+L'utilisateur qui a soumis le rendu.
+Le fichier soumis (chemin d'accès sur le serveur).
+La date de soumission.
+Un statut indiquant si le rendu est soumis, en attente, etc.
+5. Consultation des rendus
+Les enseignants peuvent :
+Consulter les rendus soumis par les étudiants pour chaque livrable.
+Télécharger les fichiers et lire les descriptions.
+Donner des retours ou des feedbacks.
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Technologies utilisées
+
+Frontend :
+HTML, CSS : Interfaces utilisateur pour les tableaux de bord et les formulaires.
+JavaScript : Ajout d’interactivité, comme les filtres pour chercher les rendus ou les livrables.
+Backend :
+PHP : Gestion de la logique métier et des interactions entre les utilisateurs et la base de données.
+
+Modèle MVC : Séparation des responsabilités dans le code :
+Modèle : Interagit avec la base de données (récupération et insertion des données).
+Vue : Gère l'affichage des données à l'utilisateur.
+Contrôleur : Traite les requêtes utilisateur et coordonne les actions du modèle et de la vue.
+
+Base de données :
+MySQL :
+-Tables principales : Utilisateur, Projet, Livrable, Rendu, Promotion, etc.
+Les relations entre les tables permettent une gestion efficace des associations (ex. : un étudiant est lié à une promotion et un projet).
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Points forts de mon projet
+Utilisabilité :
+-L'interface est intuitive, avec des fonctionnalités bien pensées pour chaque type d'utilisateur.
+-Les étudiants peuvent soumettre leurs fichiers et consulter les livrables avec une facilité d'accès.
+Évolutivité :
+-Grâce à la structure MVC, le projet peut être étendu facilement en ajoutant de nouvelles fonctionnalités (par exemple, une messagerie interne ou un système de notation).
+Robustesse :
+-Les fichiers sont traités avec soin (vérification des erreurs, gestion des noms uniques).
+-Des validations sécurisées sont mises en place pour éviter les injections SQL ou les erreurs inattendues.
+Utilisation professionnelle :
+-Le projet est prêt à être utilisé dans un environnement éducatif réel pour aider à la gestion des projets académiques.
